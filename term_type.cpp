@@ -15,6 +15,10 @@ bool IsDigit(unsigned x){
     return (x>='0') && (x<='9');
 }
 
+bool IsHexDigit(unsigned x){
+    return IsDigit(x) || ((x>='a') && (x<='f')) || ((x>='A') && (x<='F'));
+}
+
 bool IsBinaryOperator(unsigned c){
     if(IsAddOp(c)||IsMultOp(c))
        return true;

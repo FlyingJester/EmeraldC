@@ -29,4 +29,7 @@ std::string GetNumber(Files file);
 
 bool EndOfInput(Files file);
 
+unsigned GetLine(Files file);
+unsigned GetColumn(Files file);
+
 }

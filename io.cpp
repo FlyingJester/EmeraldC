@@ -1,15 +1,31 @@
 #include "io.hpp"
 #include "error.hpp"
 #include <vector>
+#include <cassert>
 
 namespace Compiler {
 
 static std::string next;
 
+static unsigned line = 1;
+static unsigned column = 1;
+
 // TODO: UTF8?
 void PullChar(Files file){
-    if(!next.empty())
+    if(!next.empty()){
+
+        if(next[0]=='\n'){
+            column = 1;
+            line++;
+        }
+        else if(next[0]=='\t'){
+            column+=4;
+        }
+        else
+            column++;
+
         next.erase(0, 1);
+    }
     if(next.empty()){
         char c = fgetc(file.in);
         if(feof(file.in) || (c==EOF)){
@@ -18,6 +34,29 @@ void PullChar(Files file){
         next.push_back(c);
     }
 }
+
+unsigned GetLine(Files file){
+    unsigned n_line = line;
+    for(std::string::const_iterator i = next.cbegin(); i != next.cend(); i++){
+        if(*i=='\n')
+            n_line++;
+    }
+    return n_line;
+}
+
+unsigned GetColumn(Files file){
+    unsigned n_column = column;
+    for(std::string::const_iterator i = next.cbegin(); i != next.cend(); i++){
+        if(*i=='\n')
+            n_column = 1;
+        else if(*i=='\t')
+            n_column+=4;
+        else
+            n_column++;
+    }
+    return n_column;
+}
+
 
 bool EndOfInput(Files file){
     SkipWhiteSpace(file);
@@ -106,19 +145,75 @@ std::string GetName(Files file){
     return s;
 }
 
-std::string GetNumber(Files file){
+std::string GetDecNumber(Files file){
+    std::string s;
+    while(IsDigit(Peek()))
+        s+=GetChar(file);
+
+    if(IsAlpha(Peek()))
+        Unexpected("Character in decimal literal ", file);
+
+    SkipWhiteSpace(file);
+    return s;
+}
+
+std::string GetHexNumber(Files file){
     std::string s;
 
+    if(Peek("0X", file))
+        Match("0X", file);
+    else
+        Match("0x", file);
+    
+    while(IsHexDigit(Peek())){
+        s+=GetChar(file);
+    }
+    if(IsAlpha(Peek()))
+        Unexpected("Character in hexadecimal literal ", file);
+
+    SkipWhiteSpace(file);
+
+    return s;
+
+}
+
+std::string GetBinNumber(Files file){
+    unsigned n = 0, chars = 0;
+    if(Peek("0B", file))
+        Match("0B", file);
+    else
+        Match("0b", file);
+
+    while((Peek()=='1') || (Peek()=='0')){
+        unsigned l = GetChar(file)-'0';
+        n|=l;
+        n<<=1;
+        chars++;
+    }
+
+    if(chars++>32){
+        Error("Warning too many characters in binary literal", file);
+    }
+
+    if(IsAlpha(Peek()) || IsDigit(Peek()))
+        Unexpected("Character in binary literal ", file);
+
+    return std::to_string(n);
+
+}
+
+std::string GetNumber(Files file){
+    std::string s;
+    
     if(!IsDigit(Peek()))
         Expected("Integer", file);
 
-    while(IsDigit(Peek())){
-        s+=Peek();
-        PullChar(file);
-        SkipWhiteSpace(file);
-    }
-
-    return s;
+    if(Peek("0x", file) || Peek("0X", file))
+        return GetHexNumber(file);
+    else if(Peek("0b", file) || Peek("0B", file))
+        return GetBinNumber(file);
+    else
+        return GetDecNumber(file);
 }
 
 }
