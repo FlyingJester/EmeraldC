@@ -26,6 +26,7 @@ void Error(const std::string &s, Files file){
 
 TS_NORETURN void Abort(const std::string &s, Files file){
     Error(s, file);
+    Error(std::string("At line ") + std::to_string(GetLine(file)) + ", column " + std::to_string(GetColumn(file)), file);
     assert(false);
 }
 
@@ -36,6 +37,15 @@ TS_NORETURN void Expected(const std::string &s, Files file){
 // TODO: UTF8
 TS_NORETURN void Expected(unsigned s, Files file){
     Expected(NameChar(s), file);
+}
+
+TS_NORETURN void Unexpected(const std::string &s, Files file){
+    Abort("Unexpected " + s + ", was " + NameChar(Peek()), file);
+}
+
+// TODO: UTF8
+TS_NORETURN void Unexpected(unsigned s, Files file){
+    Unexpected(NameChar(s), file);
 }
 
 

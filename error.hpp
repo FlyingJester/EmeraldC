@@ -15,6 +15,8 @@ namespace Compiler {
 
 void Error(const std::string &s, Files file);
 TS_NORETURN void Abort(const std::string &s, Files file);
+TS_NORETURN void Unexpected(const std::string &s, Files file);
+TS_NORETURN void Unexpected(unsigned s, Files file);
 TS_NORETURN void Expected(const std::string &s, Files file);
 TS_NORETURN void Expected(unsigned s, Files file);
 
