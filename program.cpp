@@ -87,9 +87,11 @@ void Statement(Emitter *emit, Files file){
         DoWhile(emit, file);
     else if(Peek("break", file))
         Break(emit, file);
+    else if(Peek("for", file))
+        For(emit, file);
     else
-        Boolean::Expression(emit, file);
-    Match(';', file);
+        Arithmetic::Assignment(emit, file);
+//        Boolean::Expression(emit, file);
 }
 
 void Block(Emitter *emit, Files file){
@@ -129,9 +131,6 @@ void If(Emitter *emit, Files file){
         label.emit(emit);
         Block(emit, file);
         not_else_label.emit(emit);
-// The ender for this if will get swallowed by the else block.
-// Put another one on to fix this. Inelegant, but effective.
-        UnMatch(';', file);
     }
     else{
         label.emit(emit);
@@ -170,6 +169,77 @@ void DoWhile(Emitter *emit, Files file){
     
     Conditional(emit, file);
     start.jumpNotZero(emit);
+    end.emit(emit);
+}
+
+void For(Emitter *emit, Files file){
+    JumpLabeller<true> end;
+    JumpLabeller<false> start_iter, end_iter, tester;
+
+// A for loop looks like this:
+// for(
+//   init ;
+//   condition ;
+//   iter )
+//   block
+//
+// Including the labels used in Compiler:
+//
+// for(
+//   init ;
+//     tester:
+//   condition ;
+//     start_iter:
+//   iter )
+//     end_iter:
+//   block
+//   end:
+// 
+// With jumps:
+//
+// for(
+//   init ;
+//     tester:
+//   if(
+//   condition ;
+//   ) goto end_iter;
+//     goto end;
+//     start_iter:
+//
+//   iter ) 
+//     goto tester; 
+//     end_iter:
+//   block
+//   end:
+//
+    Match("for", file);
+    Match('(', file);
+        
+    Boolean::Expression(emit, file);
+
+    Match(';', file);
+    
+    tester.emit(emit);
+
+    Boolean::Expression(emit, file);
+
+    end_iter.jumpNotZero(emit);
+    end.jump(emit);
+
+    Match(';', file);
+    
+    start_iter.emit(emit);
+    
+    Boolean::Expression(emit, file);
+    
+    Match(')', file);
+    
+    tester.jump(emit);
+    end_iter.emit(emit);
+
+    Block(emit, file);
+
+    start_iter.jump(emit);
     end.emit(emit);
 }
 

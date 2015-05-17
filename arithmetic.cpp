@@ -24,9 +24,10 @@ void Factor(Emitter *emit, Files file){
 void Assignment(Emitter *emit, Files file){
         const std::string name = GetName(file);
         Match('=', file);
-        Expression(emit, file);
+        Boolean::Expression(emit, file);
         EmitLine(emit, {"sw", {"$t1", name}});
         EnsureVariable(emit, name);
+        Match(';', file);
 }
 
 
