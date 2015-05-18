@@ -2,6 +2,8 @@
 #include "error.hpp"
 #include "arithmetic.hpp"
 #include "boolean.hpp"
+#include "integral_types.hpp"
+#include "declaration.hpp"
 
 namespace Compiler {
 
@@ -89,6 +91,8 @@ void Statement(CPU *cpu, Files file){
         Break(cpu, file);
     else if(Peek("for", file))
         For(cpu, file);
+    else if(IsType(file))
+        Declaration(cpu, file);
     else
         Arithmetic::Assignment(cpu, file);
 //        Boolean::Expression(emit, file);

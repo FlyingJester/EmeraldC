@@ -22,8 +22,12 @@ CPU::CPU(){
     emit = CreateEmitter();
 }
 
-void CPU::EnsureVariable(const std::string& name){
-    Compiler::EnsureVariable(emit, name);
+void CPU::CreateVariable(const struct Variable& var, Files file){
+    Compiler::CreateVariable(var, emit, file);
+}
+
+void CPU::EnsureVariable(const std::string& name, Files file){
+    Compiler::EnsureVariable(name, emit, file);
 }
 
 CPU *CPU::Create(const std::string &platform, Files file){
@@ -68,10 +72,6 @@ void CPU::Flush(Files file){
     Compiler::Write(emit, file);
     Optimize(0xFF);
     Compiler::Flush(emit, file);
-}
-
-void CPU::WriteSymbols(Files file){
-    Compiler::WriteSymbols(emit, file);
 }
 
 }

@@ -20,14 +20,14 @@ void Factor(CPU *cpu, Files file){
 }
 
 void Assignment(CPU *cpu, Files file){
-        const std::string name = GetName(file);
-        Match('=', file);
-        Boolean::Expression(cpu, file);
+    const std::string name = GetName(file);
+    Match('=', file);
+    Boolean::Expression(cpu, file);
         
-        cpu->StoreVariable(name);
+    cpu->StoreVariable(name);
         
-        cpu->EnsureVariable(name);
-        Match(';', file);
+    cpu->EnsureVariable(name, file);
+    Match(';', file);
 }
 
 
@@ -40,7 +40,7 @@ void Identifier(CPU *cpu, Files file){
         cpu->Call(name);
     }
     else{
-        cpu->EnsureVariable(name);
+        cpu->EnsureVariable(name, file);
         cpu->LoadVariable(name);
     }
 }

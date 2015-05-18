@@ -1,4 +1,6 @@
 #include "asm.hpp"
+#include "asm_inner.hpp"
+#include "error.hpp"
 #include <list>
 #include <vector>
 #include <algorithm>
@@ -8,11 +10,6 @@
 #define max_code_length 8
 
 namespace Compiler{
-
-struct Emitter{
-    std::list<Op> operations;
-    std::vector<std::string> variables;
-};
 
 Emitter *CreateEmitter(){
     return new Emitter();
@@ -49,16 +46,27 @@ void EmitLine(Emitter *emit, const Op &s){
     emit->operations.push_back(s);
 }
 
-void EnsureVariable(Emitter *emit, const std::string &name){
-
-    assert(name!="else");
-
-    if(std::find(emit->variables.cbegin(), emit->variables.cend(), name)==emit->variables.cend()){
-        emit->variables.push_back(name);
+void CreateVariable(const struct Variable &var, Emitter *emit, Files file){
+    std::vector<struct Variable>::const_iterator i = emit->variables.cbegin();
+    while(i!=emit->variables.cend()){
+        if(i->name==var.name) Abort(std::string("Redefinition of variable ") + var.name, file);
+        i++;
     }
+
+    emit->variables.push_back(var); 
 }
 
+void EnsureVariable(const std::string &name, Emitter *emit, Files file){
+    std::vector<struct Variable>::const_iterator i = emit->variables.cbegin();
+    while(i!=emit->variables.cend()){
+        if(i->name==name) break;
+        i++;
+    }
 
+    if(i==emit->variables.cend()){
+        Abort(std::string("Use of undefined variable ") + name, file);
+    }
+}
 
 void InitSource(Emitter *emit, Files file){
     EmitLine(emit, {"    .text", {}});
@@ -82,26 +90,6 @@ void Write(Emitter *emit, Files file){
         i!=emit->operations.cend(); i++){
         Emit(*i, file);
     }
-}
-
-void WriteSymbols(Emitter *emit, Files file){
-    fputs("    .data\n", file.out);
-    while(!emit->variables.empty()){
-        fputs(emit->variables.back().c_str(), file.out);
-        fputs(": .byte 0\n", file.out);
-        emit->variables.pop_back();
-    }
-    fputc('\n', file.out);
-}
-
-void YasmWriteSymbols(Emitter *emit, Files file){
-    fputs("section  .data\n", file.out);
-    while(!emit->variables.empty()){
-        fputs(emit->variables.back().c_str(), file.out);
-        fputs(": dq 0x0\n", file.out);
-        emit->variables.pop_back();
-    }
-    fputc('\n', file.out);
 }
 
 }

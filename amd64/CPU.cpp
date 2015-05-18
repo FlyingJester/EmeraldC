@@ -1,5 +1,6 @@
 #include "CPU.hpp"
 #include "../asm.hpp"
+#include "../asm_inner.hpp"
 #include "optimizer.hpp"
 #include <cassert>
 
@@ -215,7 +216,16 @@ void CPU::InitSource(Files file){
 }
 
 void CPU::WriteSymbols(Files file){
-    Compiler::YasmWriteSymbols(emit, file);
+    fputs("section .text\n", file.out);
+    fputs("align 16\n", file.out);
+    for(std::vector<struct Variable>::const_iterator i = emit->variables.cbegin();
+        i!=emit->variables.cend(); i++){
+        fputs(i->name.c_str(), file.out);
+        fputc(':', file.out);
+        fputs("resb  ", file.out);
+        fputs(std::to_string(i->type.size).c_str(), file.out);
+        fputc('\n', file.out);
+    }
 }
 
 }

@@ -69,6 +69,8 @@ public:
     void Equal() override;
     void NotEqual() override;
 
+    void WriteSymbols(Files file) override;
+
 };
 
 

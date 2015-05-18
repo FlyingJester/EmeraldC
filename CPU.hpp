@@ -4,6 +4,7 @@
 
 namespace Compiler {
 
+struct Variable;
 struct Emitter;
 
 // Note that since many of the methods are also keywords in C/C++,
@@ -62,9 +63,9 @@ public:
 
     virtual void InitSource(Files file);
     virtual void Flush(Files file);
-    virtual void WriteSymbols(Files file);
-
-    void EnsureVariable(const std::string& name);
+    virtual void WriteSymbols(Files file) = 0;
+    void EnsureVariable(const std::string& var, Files file);
+    void CreateVariable(const struct Variable& var, Files file);
     virtual void Label(const std::string& name);
 
     static CPU *Create(const std::string &platform, Files file);
