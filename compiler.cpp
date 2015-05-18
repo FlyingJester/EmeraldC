@@ -3,6 +3,7 @@
 #include "io.hpp"
 #include "error.hpp"
 #include <cstdlib>
+#include <cstdio>
 #include <cstring>
 
 static void Init(Compiler::Files file){
@@ -22,9 +23,22 @@ static const char *GetArchitecture(int argc, char *argv[]){
     return "MIPS_opt";
 }
 
+static const char *Help(int argc, char *argv[]){
+    for(int i = 0; i<argc; i++){
+        if(strnlen(argv[i], 3)<2) continue;
+        if((memcmp(argv[i], "-h", 2)==0) || (strcmp(argv[i], "--help")==0)){
+            puts("Emerald C Comiler");
+            puts("Copyright 2015, Martin McDonough");
+            puts("Version <ALPHA>");
+            break;
+        }
+    }
+    exit(EXIT_SUCCESS);
+}
+
 int main(int argc, char *argv[]){
 
-    
+    Help(argc, argv);
 
     struct Compiler::Files console = {stdin, stdout, stderr};
 
