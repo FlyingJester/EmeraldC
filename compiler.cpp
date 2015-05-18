@@ -13,13 +13,13 @@ int main(int argc, char *argv[]){
 
     struct Compiler::Files console = {stdin, stdout, stderr};
 
-    Compiler::CPU *mips_test_cpu = Compiler::CPU::Create("amd64", console);
+    Compiler::CPU *test_cpu = Compiler::CPU::Create("amd64_opt", console);
     Init(console);
 
     
-    mips_test_cpu->InitSource(console);
-    Compiler::Program(mips_test_cpu, console);
-    mips_test_cpu->Flush(console);
-    mips_test_cpu->WriteSymbols(console);
+    test_cpu->InitSource(console);
+    Compiler::Program(test_cpu, console);
+    test_cpu->Flush(console);
+    test_cpu->WriteSymbols(console);
     return EXIT_SUCCESS;
 }

@@ -6,8 +6,14 @@
 #ifdef TARGET_MIPS
 #include "MIPS/CPU.hpp"
 #endif
+#ifdef TARGET_MIPS_opt
+#include "MIPS_opt/CPU.hpp"
+#endif
 #ifdef TARGET_amd64
 #include "amd64/CPU.hpp"
+#endif
+#ifdef TARGET_amd64_opt
+#include "amd64_opt/CPU.hpp"
 #endif
 
 namespace Compiler {
@@ -28,10 +34,23 @@ CPU *CPU::Create(const std::string &platform, Files file){
         return new MIPS::CPU();
     }
 #endif
+#ifdef TARGET_MIPS_opt
+    if((platform=="MIPS_opt") || (platform=="mips_opt") || 
+    (platform=="MIPS32_opt") || (platform=="mips32_opt") || 
+    (platform=="MIPS_opt32") || (platform=="mips_opt32")){
+        return new MIPS_opt::CPU();
+    }
+#endif
 #ifdef TARGET_amd64
     if((platform=="amd64") || (platform=="AMD64") || 
     (platform=="x86_64") || (platform=="EMT_64")){
         return new amd64::CPU();
+    }
+#endif
+#ifdef TARGET_amd64_opt
+    if((platform=="amd64_opt") || (platform=="AMD64_opt") || 
+    (platform=="x86_64_opt") || (platform=="EMT_64_opt")){
+        return new amd64_opt::CPU();
     }
 #endif
     Abort(std::string("Unrecognized architecture ") + platform, file);

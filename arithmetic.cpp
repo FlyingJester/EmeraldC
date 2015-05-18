@@ -129,6 +129,7 @@ void Subtract(CPU *cpu, Files file){
     Match('-', file);
     Term(cpu, file);
     cpu->PopValue();
+    cpu->Subtract();
 }
 
 void Multiply(CPU *cpu, Files file){
