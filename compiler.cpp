@@ -3,17 +3,32 @@
 #include "io.hpp"
 #include "error.hpp"
 #include <cstdlib>
+#include <cstring>
 
 static void Init(Compiler::Files file){
     Compiler::PullChar(file);
     Compiler::SkipWhiteSpace(file);
 }
 
+// Just this one place we use C-strings. C-strings in, C-strings out.
+static const char *GetArchitecture(int argc, char *argv[]){
+    for(int i = 0; i<argc; i++){
+        if(strnlen(argv[i], 3)<2) continue;
+        if(memcmp(argv[i], "-m", 2)==0){
+            return argv[i]+2;
+        }        
+    }
+// The current testing architecture
+    return "MIPS_opt";
+}
+
 int main(int argc, char *argv[]){
+
+    
 
     struct Compiler::Files console = {stdin, stdout, stderr};
 
-    Compiler::CPU *test_cpu = Compiler::CPU::Create("amd64_opt", console);
+    Compiler::CPU *test_cpu = Compiler::CPU::Create(GetArchitecture(argc, argv), console);
     Init(console);
 
     
