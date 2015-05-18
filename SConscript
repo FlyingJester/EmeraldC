@@ -3,7 +3,7 @@ import os
 files = ["compiler.cpp", "error.cpp", "io.cpp", "term_type.cpp", "arithmetic.cpp", 
   "boolean.cpp", "equation.cpp", "asm.cpp", "program.cpp", "CPU.cpp"]
 
-CPUs = ["MIPS", "amd64"]
+CPUs = ["MIPS", "MIPS_opt", "amd64", "amd64_opt"]
 CPU_use = []
 
 for cpu in CPUs:
