@@ -5,18 +5,18 @@
 namespace Compiler {
 namespace Boolean{
 
-void Expression(Emitter *emit, Files file);
-void Term(Emitter *emit, Files file);
-void OpFactor(Emitter *emit, Files file);
-void Factor(Emitter *emit, Files file);
+void Expression(CPU *cpu, Files file);
+void Term(CPU *cpu, Files file);
+void OpFactor(CPU *cpu, Files file);
+void Factor(CPU *cpu, Files file);
 
-void True(Emitter *emit, Files file);
-void False(Emitter *emit, Files file);
+void True(CPU *cpu, Files file);
+void False(CPU *cpu, Files file);
 
-void And(Emitter *emit, Files file);
-void Or(Emitter *emit, Files file);
+void And(CPU *cpu, Files file);
+void Or(CPU *cpu, Files file);
 
-void Not(Emitter *emit, Files file);
+void Not(CPU *cpu, Files file);
 
 }
 }

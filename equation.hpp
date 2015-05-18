@@ -4,11 +4,11 @@
 
 namespace Compiler {
 
-void GreaterThan(Emitter *emit, Files file);
-void GreaterThanOrEqual(Emitter *emit, Files file);
-void LessThan(Emitter *emit, Files file);
-void LessThanOrEqual(Emitter *emit, Files file);
-void Equal(Emitter *emit, Files file);
-void NotEqual(Emitter *emit, Files file);
+void GreaterThan(CPU *cpu, Files file);
+void GreaterThanOrEqual(CPU *cpu, Files file);
+void LessThan(CPU *cpu, Files file);
+void LessThanOrEqual(CPU *cpu, Files file);
+void Equal(CPU *cpu, Files file);
+void NotEqual(CPU *cpu, Files file);
 
 }

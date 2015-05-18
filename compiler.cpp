@@ -4,21 +4,22 @@
 #include "error.hpp"
 #include <cstdlib>
 
-static void Init(Compiler::Emitter * &emit, Compiler::Files file){
+static void Init(Compiler::Files file){
     Compiler::PullChar(file);
     Compiler::SkipWhiteSpace(file);
-    emit = Compiler::CreateEmitter();
 }
 
 int main(int argc, char *argv[]){
 
     struct Compiler::Files console = {stdin, stdout, stderr};
 
-    Compiler::Emitter *emit;
-    Init(emit, console);
-    Compiler::InitSource(emit, console);
-    Compiler::Program(emit, console);
-    Flush(emit, console);
-    Compiler::WriteSymbols(emit, console);
+    Compiler::CPU *mips_test_cpu = Compiler::CPU::Create("amd64", console);
+    Init(console);
+
+    
+    mips_test_cpu->InitSource(console);
+    Compiler::Program(mips_test_cpu, console);
+    mips_test_cpu->Flush(console);
+    mips_test_cpu->WriteSymbols(console);
     return EXIT_SUCCESS;
 }

@@ -5,73 +5,65 @@
 namespace Compiler {
 namespace Boolean {
 
-void Expression(Emitter *emit, Files file){
-    Term(emit, file);
+void Expression(CPU *cpu, Files file){
+    Term(cpu, file);
     while(Peek("&&", file) || Peek("||", file)){
         if(Peek("&&", file)){
-            And(emit, file);
+            And(cpu, file);
         }
         else if(Peek("||", file)){
-            Or(emit, file);
+            Or(cpu, file);
         }
-        Term(emit, file);
+        Term(cpu, file);
     }
 }
 
-void Term(Emitter *emit, Files file){
-    OpFactor(emit, file);
+void Term(CPU *cpu, Files file){
+    OpFactor(cpu, file);
 }
 
-void OpFactor(Emitter *emit, Files file){
-    Factor(emit, file);
+void OpFactor(CPU *cpu, Files file){
+    Factor(cpu, file);
 }
 
-void Factor(Emitter *emit, Files file){
+void Factor(CPU *cpu, Files file){
     if(Peek("true", file))
-        True(emit, file);
+        True(cpu, file);
     else if(Peek("false", file))
-        False(emit, file);
+        False(cpu, file);
     // Binary Variable right here...
     else
-        Arithmetic::Relation(emit, file);
+        Arithmetic::Relation(cpu, file);
 }
 
-void True(Emitter *emit, Files file){
+void True(CPU *cpu, Files file){
     Match("true", file);
-    EmitLine(emit, {"li", {"$t1", "1"}});
+    cpu->True();
 }
 
-void False(Emitter *emit, Files file){
+void False(CPU *cpu, Files file){
     Match("false", file);
-    EmitLine(emit, {"li", {"$t1", "0"}});
+    cpu->False();
 }
 
-void And(Emitter *emit, Files file){
+void And(CPU *cpu, Files file){
     Match("&&", file);
-    Term(emit, file);
-    EmitLine(emit, {"lw", {"$t2", "0($sp)"}});
-    EmitLine(emit, {"addiu", {"$sp", "$sp", "4"}});
-    // In case of arithmetic $t2, cast to boolean.
-    EmitLine(emit, {"sgt", {"$t2", "$t2", "$zero"}});
-
-    EmitLine(emit, {"and", {"$t1", "$t1", "$t2"}});
+    Term(cpu, file);
+    cpu->PopValue();
+    cpu->BooleanOr();
 }
 
-void Or(Emitter *emit, Files file){
+void Or(CPU *cpu, Files file){
     Match("||", file);
-    Term(emit, file);
-    EmitLine(emit, {"lw", {"$t2", "0($sp)"}});
-    EmitLine(emit, {"addiu", {"$sp", "$sp", "4"}});
-    // In case of arithmetic $t2, cast to boolean.
-    EmitLine(emit, {"sgt", {"$t2", "$t2", "$zero"}});
-
-    EmitLine(emit, {"or", {"$t1", "$t1", "$t2"}});
+    Term(cpu, file);
+    cpu->PopValue();
+    cpu->BooleanAnd();
 }
 
 // Don't use this yet.
-void Not(Emitter *emit, Files file){
+void Not(CPU *cpu, Files file){
     Match('!', file);
-    Term(emit, file);
+    Term(cpu, file);
 }
 
 }

@@ -32,8 +32,8 @@ public:
         return str_;
     }
 
-    void emit(Emitter *emit_) const{
-        EmitLine(emit_, {str_+":", {}});
+    void emit(CPU *cpu) const{
+        cpu->Label(str_);
     }
 
     static const JumpLabeller<true> breakTo(Files file){
@@ -44,14 +44,14 @@ public:
         return JumpLabeller(i-1);
     }
 
-    void jump(Emitter *emit_) const {
-        EmitLine(emit_, {"j", {str_}});
+    void jump(CPU *cpu) const {
+        cpu->Jump(str_);
     }
-    void jumpNotZero(Emitter *emit_) const {
-        EmitLine(emit_, {"bne", {"$t1", "$zero", str_}});
+    void jumpNotZero(CPU *cpu) const {
+        cpu->JumpNotZero(str_);
     }
-    void jumpZero(Emitter *emit_) const {
-        EmitLine(emit_, {"beq", {"$t1", "$zero", str_}});
+    void jumpZero(CPU *cpu) const {
+        cpu->JumpZero(str_);
     }
 
     
@@ -67,112 +67,112 @@ unsigned JumpLabeller<true>::i = 0;
 template<>
 unsigned JumpLabeller<false>::i = 0;
 
-void Program(Emitter *emit, Files file){
-    EmitLine(emit, {"main:", {}});
+void Program(CPU *cpu, Files file){
+    cpu->Label("main");
 
     do{
-        Block(emit, file);
+        Block(cpu, file);
     }while(!(EndOfInput(file)||(Peek()=='@')));
 
-    EmitLine(emit, {"li", {"$v0", "10"}});
-    EmitLine(emit, {"syscall", {}});
+    cpu->Exit();
+
 }
 
-void Statement(Emitter *emit, Files file){
+void Statement(CPU *cpu, Files file){
     if(Peek("if", file))
-        If(emit, file);
+        If(cpu, file);
     else if(Peek("while", file))
-        While(emit, file);
+        While(cpu, file);
     else if(Peek("do", file))
-        DoWhile(emit, file);
+        DoWhile(cpu, file);
     else if(Peek("break", file))
-        Break(emit, file);
+        Break(cpu, file);
     else if(Peek("for", file))
-        For(emit, file);
+        For(cpu, file);
     else
-        Arithmetic::Assignment(emit, file);
+        Arithmetic::Assignment(cpu, file);
 //        Boolean::Expression(emit, file);
 }
 
-void Block(Emitter *emit, Files file){
+void Block(CPU *cpu, Files file){
     if(Peek()=='{'){
         Match('{', file);
         while(Peek()!='}')
-            Statement(emit, file);
+            Statement(cpu, file);
         Match('}', file);
     }
     else
-        Statement(emit, file);
+        Statement(cpu, file);
 
 }
 
-void Conditional(Emitter *emit, Files file){
+void Conditional(CPU *cpu, Files file){
     Match('(', file);
-    Boolean::Expression(emit, file);
+    Boolean::Expression(cpu, file);
     Match(')', file);
 }
 
-void If(Emitter *emit, Files file){
+void If(CPU *cpu, Files file){
     Match("if", file);
     JumpLabeller<false> label;
 
-    Conditional(emit, file);
+    Conditional(cpu, file);
 
-    label.jumpZero(emit);
+    label.jumpZero(cpu);
 
-    Block(emit, file);
+    Block(cpu, file);
 
     if(Peek("else", file)){
         Match("else", file);
         
         JumpLabeller<false> not_else_label;
         
-        not_else_label.jump(emit);
-        label.emit(emit);
-        Block(emit, file);
-        not_else_label.emit(emit);
+        not_else_label.jump(cpu);
+        label.emit(cpu);
+        Block(cpu, file);
+        not_else_label.emit(cpu);
     }
     else{
-        label.emit(emit);
+        label.emit(cpu);
     }
 
 }
 
-void While(Emitter *emit, Files file){
+void While(CPU *cpu, Files file){
     JumpLabeller<false> start;
     JumpLabeller<true> end;
 
     Match("while", file);
    
-    start.emit(emit);
+    start.emit(cpu);
 
-    Conditional(emit, file);
+    Conditional(cpu, file);
 
-    end.jumpZero(emit);
+    end.jumpZero(cpu);
 
-    Block(emit, file);
+    Block(cpu, file);
     
-    start.jump(emit);
-    end.emit(emit);
+    start.jump(cpu);
+    end.emit(cpu);
 }
 
-void DoWhile(Emitter *emit, Files file){
+void DoWhile(CPU *cpu, Files file){
     JumpLabeller<false> start;
     JumpLabeller<true> end;
 
     Match("do", file);
 
-    start.emit(emit);
-    Block(emit, file);
+    start.emit(cpu);
+    Block(cpu, file);
 
     Match("while", file);
     
-    Conditional(emit, file);
-    start.jumpNotZero(emit);
-    end.emit(emit);
+    Conditional(cpu, file);
+    start.jumpNotZero(cpu);
+    end.emit(cpu);
 }
 
-void For(Emitter *emit, Files file){
+void For(CPU *cpu, Files file){
     JumpLabeller<true> end;
     JumpLabeller<false> start_iter, end_iter, tester;
 
@@ -215,37 +215,37 @@ void For(Emitter *emit, Files file){
     Match("for", file);
     Match('(', file);
         
-    Boolean::Expression(emit, file);
+    Boolean::Expression(cpu, file);
 
     Match(';', file);
     
-    tester.emit(emit);
+    tester.emit(cpu);
 
-    Boolean::Expression(emit, file);
+    Boolean::Expression(cpu, file);
 
-    end_iter.jumpNotZero(emit);
-    end.jump(emit);
+    end_iter.jumpNotZero(cpu);
+    end.jump(cpu);
 
     Match(';', file);
     
-    start_iter.emit(emit);
+    start_iter.emit(cpu);
     
-    Boolean::Expression(emit, file);
+    Boolean::Expression(cpu, file);
     
     Match(')', file);
     
-    tester.jump(emit);
-    end_iter.emit(emit);
+    tester.jump(cpu);
+    end_iter.emit(cpu);
 
-    Block(emit, file);
+    Block(cpu, file);
 
-    start_iter.jump(emit);
-    end.emit(emit);
+    start_iter.jump(cpu);
+    end.emit(cpu);
 }
 
-void Break(Emitter *emit, Files file){
+void Break(CPU *cpu, Files file){
     Match("break", file);
-    JumpLabeller<true>::breakTo(file).jump(emit);
+    JumpLabeller<true>::breakTo(file).jump(cpu);
 }
 
 }

@@ -7,188 +7,171 @@
 namespace Compiler {
 namespace Arithmetic {
 
-void Factor(Emitter *emit, Files file){
+void Factor(CPU *cpu, Files file){
     if(Peek()=='('){
         Match('(', file);
-        Expression(emit, file);
+        Expression(cpu, file);
         Match(')', file);
     }
     else if(IsDigit(Peek()))
-        EmitLine(emit, {"li", {"$t1", GetNumber(file)}});
+        cpu->LoadNumber(GetNumber(file));
     else if(IsAlpha(Peek()))
-        Identifier(emit, file);
-//    else
-//        Boolean::Expression(emit, file);
+        Identifier(cpu, file);
 }
 
-void Assignment(Emitter *emit, Files file){
+void Assignment(CPU *cpu, Files file){
         const std::string name = GetName(file);
         Match('=', file);
-        Boolean::Expression(emit, file);
-        EmitLine(emit, {"sw", {"$t1", name}});
-        EnsureVariable(emit, name);
+        Boolean::Expression(cpu, file);
+        
+        cpu->StoreVariable(name);
+        
+        cpu->EnsureVariable(name);
         Match(';', file);
 }
 
 
 
-void Identifier(Emitter *emit, Files file){
+void Identifier(CPU *cpu, Files file){
     const std::string name = GetName(file);
     if(Peek()=='('){
         Match('(', file);
         Match(')', file);
-        EmitLine(emit, {"jal", {name}});
+        cpu->Call(name);
     }
     else{
-        EnsureVariable(emit, name);
-        EmitLine(emit, {"lw", {"$t1", name}});
+        cpu->EnsureVariable(name);
+        cpu->LoadVariable(name);
     }
 }
 
-void Term(Emitter *emit, Files file){
-    Factor(emit, file);
+void Term(CPU *cpu, Files file){
+    Factor(cpu, file);
     while(IsMultOp(Peek())){
-        EmitLine(emit, {"addiu", {"$sp", "$sp", "-4"}});
-        EmitLine(emit, {"sw", {"$t1", "0($sp)"}});
+        cpu->PushValue();
         switch(Peek()){
             case '*':
-                Multiply(emit, file);
+                Multiply(cpu, file);
                 break;
             case '/':
-                Divide(emit, file);
+                Divide(cpu, file);
                 break;
         }// switch peek
     } // is multop
 }
 
 
-void Expression(Emitter *emit, Files file){
+void Expression(CPU *cpu, Files file){
     if(IsAddOp(Peek()))
-        EmitLine(emit, {"li", {"$t1", "0"}});
+        cpu->LoadNumber("0");
     else
-        Term(emit, file);
+        Term(cpu, file);
 
     while(IsAddOp(Peek())){
-        EmitLine(emit, {"addiu", {"$sp", "$sp", "-4"}});
-        EmitLine(emit, {"sw", {"$t1", "0($sp)"}});
+        cpu->PushValue();
         switch(Peek()){
             case '%':
-                Modulo(emit, file);
+                Modulo(cpu, file);
                 break;
             case '+':
-                Add(emit, file);
+                Add(cpu, file);
                 break;
             case '-':
-                Subtract(emit, file);
+                Subtract(cpu, file);
                 break;
         } // switch peek
     } // while is binary op
 }
 
-void Relation(Emitter *emit, Files file){
-    Expression(emit, file);
+void Relation(CPU *cpu, Files file){
+    Expression(cpu, file);
     if(Peek('>', file)){
-        EmitLine(emit, {"addiu", {"$sp", "$sp", "-4"}});
-        EmitLine(emit, {"sw", {"$t1", "0($sp)"}});
+        cpu->PushValue();
         Match('>', file);
         const unsigned next = Peek();
         UnMatch('>', file);
         if(next=='='){
-            GreaterThanOrEqual(emit, file);
+            GreaterThanOrEqual(cpu, file);
         }
         else
-            GreaterThan(emit, file);
+            GreaterThan(cpu, file);
     }
     else if(Peek('<', file)){
-        EmitLine(emit, {"addiu", {"$sp", "$sp", "-4"}});
-        EmitLine(emit, {"sw", {"$t1", "0($sp)"}});
+        cpu->PushValue();
         Match('<', file);
         const unsigned next = Peek();
         UnMatch('<', file);
         if(next=='='){
-            LessThanOrEqual(emit, file);
+            LessThanOrEqual(cpu, file);
         }
         else
-            LessThan(emit, file);
+            LessThan(cpu, file);
     }
     else if(Peek("==", file)){
-        EmitLine(emit, {"addiu", {"$sp", "$sp", "-4"}});
-        EmitLine(emit, {"sw", {"$t1", "0($sp)"}});
-        Equal(emit, file);
+        cpu->PopValue();
+        Equal(cpu, file);
     }
     else if(Peek("!=", file)){
-        EmitLine(emit, {"addiu", {"$sp", "$sp", "-4"}});
-        EmitLine(emit, {"sw", {"$t1", "0($sp)"}});
-        NotEqual(emit, file);
+        cpu->PopValue();
+        NotEqual(cpu, file);
     }
     // Allow no relations at all, too.
 }
 
-void Add(Emitter *emit, Files file){
+void Add(CPU *cpu, Files file){
     Match('+', file);
-    Term(emit, file);
-    EmitLine(emit, {"lw", {"$t2", "0($sp)"}});
-    EmitLine(emit, {"addiu", {"$sp", "$sp", "4"}});
-    EmitLine(emit, {"add", {"$t1", "$t1", "$t2"}});
+    Term(cpu, file);
+    cpu->PopValue();
+    cpu->Add();
 }
 
-void Subtract(Emitter *emit, Files file){
+void Subtract(CPU *cpu, Files file){
     Match('-', file);
-    Term(emit, file);
-    EmitLine(emit, {"lw", {"$t2", "0($sp)"}});
-    EmitLine(emit, {"addiu", {"$sp", "$sp", "4"}});
-    EmitLine(emit, {"sub", {"$t1", "$t2", "$t1"}});
+    Term(cpu, file);
+    cpu->PopValue();
 }
 
-void Multiply(Emitter *emit, Files file){
+void Multiply(CPU *cpu, Files file){
     Match('*', file);
-    Factor(emit, file);
-    EmitLine(emit, {"lw", {"$t2", "0($sp)"}});
-    EmitLine(emit, {"addiu", {"$sp", "$sp", "4"}});
-    EmitLine(emit, {"mult", {"$t2", "$t1"}});
-    EmitLine(emit, {"mflo", {"$t1"}});
+    Factor(cpu, file);
+    cpu->PopValue();
+    cpu->Multiply();
 }
 
-void Divide(Emitter *emit, Files file){
+void Divide(CPU *cpu, Files file){
     Match('/', file);
-    Factor(emit, file);
-    EmitLine(emit, {"lw", {"$t2", "0($sp)"}});
-    EmitLine(emit, {"addiu", {"$sp", "$sp", "4"}});
-    EmitLine(emit, {"div", {"$t2", "$t1"}});
-    EmitLine(emit, {"mflo", {"$t1"}});
+    Factor(cpu, file);
+    cpu->PopValue();
+    cpu->Divide();
+
 }
 
-void Modulo(Emitter *emit, Files file){
+void Modulo(CPU *cpu, Files file){
     Match('%', file);
-    Factor(emit, file);
-    EmitLine(emit, {"lw", {"$t2", "0($sp)"}});
-    EmitLine(emit, {"addiu", {"$sp", "$sp", "4"}});
-    EmitLine(emit, {"div", {"$t2", "$t1"}});
-    EmitLine(emit, {"mfhi", {"$t1"}});
+    Factor(cpu, file);
+    cpu->PopValue();
+    cpu->Modulo();
 }
 
-void And(Emitter *emit, Files file){
+void And(CPU *cpu, Files file){
     Match('&', file);
-    Factor(emit, file);
-    EmitLine(emit, {"lw", {"$t2", "0($sp)"}});
-    EmitLine(emit, {"addiu", {"$sp", "$sp", "4"}});    
-    EmitLine(emit, {"and", {"$t1", "$t1", "$t2"}});
+    Factor(cpu, file);
+    cpu->PopValue();
+    cpu->BitwiseAnd();
 }
 
-void Or(Emitter *emit, Files file){
+void Or(CPU *cpu, Files file){
     Match('|', file);
-    Factor(emit, file);
-    EmitLine(emit, {"lw", {"$t2", "0($sp)"}}); 
-    EmitLine(emit, {"addiu", {"$sp", "$sp", "4"}});   
-    EmitLine(emit, {"or", {"$t1", "$t1", "$t2"}});
+    Factor(cpu, file);
+    cpu->PopValue();
+    cpu->BitwiseOr();
 }
 
-void Xor(Emitter *emit, Files file){
+void Xor(CPU *cpu, Files file){
     Match('^', file);
-    Factor(emit, file);
-    EmitLine(emit, {"lw", {"$t2", "0($sp)"}}); 
-    EmitLine(emit, {"addiu", {"$sp", "$sp", "4"}});   
-    EmitLine(emit, {"xor", {"$t1", "$t1", "$t2"}});
+    Factor(cpu, file);
+    cpu->PopValue();
+    cpu->BitwiseXor();
 }
 
 }

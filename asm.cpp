@@ -1,5 +1,4 @@
 #include "asm.hpp"
-#include "optimizer.hpp"
 #include <list>
 #include <vector>
 #include <algorithm>
@@ -62,29 +61,44 @@ void EnsureVariable(Emitter *emit, const std::string &name){
 
 
 void InitSource(Emitter *emit, Files file){
-    fputs("    .text\n", file.out);
+    EmitLine(emit, {"    .text", {}});
+}
+
+void YasmInitSource(Emitter *emit, Files file, unsigned char bits){
+    EmitLine(emit, {"bits", {"64"}});
+    EmitLine(emit, {"section", {".text"}});
+    EmitLine(emit, {"global", {"main"}});
 }
 
 void Flush(Emitter *emit, Files file){
-
-    for(std::list<Op>::const_iterator i = emit->operations.cbegin();
-        i!=emit->operations.cend(); i++)
-        Emit(*i, file);
-
-    Optimize(emit, 0xFF);
-
     while(!emit->operations.empty()){
         Emit(emit->operations.front(), file);
         emit->operations.pop_front();
     }
 }
 
-void WriteSymbols(Emitter *emit, Files file){
+void Write(Emitter *emit, Files file){
+    for(std::list<Op>::const_iterator i = emit->operations.cbegin();
+        i!=emit->operations.cend(); i++){
+        Emit(*i, file);
+    }
+}
 
+void WriteSymbols(Emitter *emit, Files file){
     fputs("    .data\n", file.out);
     while(!emit->variables.empty()){
         fputs(emit->variables.back().c_str(), file.out);
         fputs(": .byte 0\n", file.out);
+        emit->variables.pop_back();
+    }
+    fputc('\n', file.out);
+}
+
+void YasmWriteSymbols(Emitter *emit, Files file){
+    fputs("section  .data\n", file.out);
+    while(!emit->variables.empty()){
+        fputs(emit->variables.back().c_str(), file.out);
+        fputs(": dq 0x0\n", file.out);
         emit->variables.pop_back();
     }
     fputc('\n', file.out);
