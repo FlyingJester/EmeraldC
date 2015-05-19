@@ -4,13 +4,10 @@
 
 namespace Compiler {
 
+// <relation>        ::= | <math_expression> [<relate_op> <math_expression>]
 void Relation(CPU *cpu, Files file);
 
-void GreaterThan(CPU *cpu, Files file);
-void GreaterThanOrEqual(CPU *cpu, Files file);
-void LessThan(CPU *cpu, Files file);
-void LessThanOrEqual(CPU *cpu, Files file);
-void Equal(CPU *cpu, Files file);
-void NotEqual(CPU *cpu, Files file);
+void RelationalOperator(CPU *cpu, Files file);
+bool IsRelationalOp(Files file);
 
 }

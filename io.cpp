@@ -60,7 +60,7 @@ unsigned GetColumn(Files file){
 
 bool EndOfInput(Files file){
     SkipWhiteSpace(file);
-    return feof(file.in) || (next.find(EOF)!=std::string::npos);
+    return feof(file.in) || (next.front()==EOF);
 }
 
 unsigned Peek(){

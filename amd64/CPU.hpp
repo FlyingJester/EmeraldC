@@ -30,6 +30,8 @@ public:
 
 // Arithmetic operations
 
+    void Negate() override;
+
     void Add() override;
     void Subtract() override;
     void Multiply() override;

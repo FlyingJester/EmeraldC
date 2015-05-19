@@ -63,6 +63,12 @@ void CPU::JumpZero(const std::string &symbol){
     EmitLine(emit, {"beq", {"$t1", "$zero", symbol}});
 }
 
+void CPU::Negate(){
+    EmitLine(emit, {"li", {"$t0", "-1"}});
+    EmitLine(emit, {"mult", {"$t1", "$t0"}});
+    EmitLine(emit, {"mflo", {"$t1"}});
+}
+
 void CPU::Add(){
     EmitLine(emit, INTEL_STYLE("add"));
 }

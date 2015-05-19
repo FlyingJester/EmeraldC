@@ -37,6 +37,7 @@ public:
     virtual void Exit() = 0;
 
 // Arithmetic operations
+    virtual void Negate() = 0;
     virtual void Add() = 0;
     virtual void Subtract() = 0;
     virtual void Multiply() = 0;

@@ -1,50 +1,63 @@
 #include "relation.hpp"
-#include "arithmetic_expression.hpp"
+#include "math_expression.hpp"
 #include "CPU.hpp"
+#include "error.hpp"
 
 namespace Compiler {
 
-void GreaterThan(CPU *cpu, Files file){
-    Match('>', file);
-    Arithmetic::Expression(cpu, file);
-    cpu->PopValue();
-    cpu->GreaterThan();
+// <relation>        ::= | <math_expression> [<relate_op> <math_expression>]
+void Relation(CPU *cpu, Files file){
+    Math::Bits(cpu, file);
+    while(IsRelationalOp(file)){
+        RelationalOperator(cpu, file);
+    }
 }
 
-void GreaterThanOrEqual(CPU *cpu, Files file){
-    Match(">=", file);
-    Arithmetic::Expression(cpu, file);
-    cpu->PopValue();
-    cpu->GreaterThanOrEqual();
+
+void RelationalOperator(CPU *cpu, Files file){
+    if(Peek(">=", file)){
+        Match(">=", file);
+        Math::Bits(cpu, file);
+        cpu->PopValue();
+        cpu->GreaterThanOrEqual();
+    }
+    else if(Peek('>', file)){
+        Match('>', file);
+        Math::Bits(cpu, file);
+        cpu->PopValue();
+        cpu->GreaterThan();
+    }
+    else if(Peek("<=", file)){
+        Match("<=", file);
+        Math::Bits(cpu, file);
+        cpu->PopValue();
+        cpu->LessThanOrEqual();
+    }
+    else if(Peek('<', file)){
+        Match('<', file);
+        Math::Bits(cpu, file);
+        cpu->PopValue();
+        cpu->LessThan();
+    }
+    else if(Peek("==", file)){
+        Match("==", file);
+        Math::Bits(cpu, file);
+        cpu->PopValue();
+        cpu->Equal();
+    }
+    else if(Peek("!=", file)){
+        Match("!=", file);
+        Math::Bits(cpu, file);
+        cpu->PopValue();
+        cpu->NotEqual();
+    }
+    else
+        Expected("Relational Operator", file);
 }
 
-void LessThan(CPU *cpu, Files file){
-    Match('<', file);
-    Arithmetic::Expression(cpu, file);
-    cpu->PopValue();
-    cpu->LessThan();
+bool IsRelationalOp(Files file){
+    return Peek('>', file) || Peek('<', file) ||
+    Peek("==", file) || Peek("!=", file);
 }
-
-void LessThanOrEqual(CPU *cpu, Files file){
-    Match("<=", file);
-    Arithmetic::Expression(cpu, file);
-    cpu->PopValue();
-    cpu->LessThanOrEqual();
-}
-
-void Equal(CPU *cpu, Files file){
-    Match("==", file);
-    Arithmetic::Expression(cpu, file);
-    cpu->PopValue();
-    cpu->Equal();
-}
-
-void NotEqual(CPU *cpu, Files file){
-    Match("!=", file);
-    Arithmetic::Expression(cpu, file);
-    cpu->PopValue();    
-    cpu->NotEqual();
-}
-
 
 }

@@ -25,12 +25,13 @@ namespace Compiler {
 <bool_factor>     ::= <bool> | <relation>
 <bool>            ::= true | false
 
-<relation>        ::= | <math_expression> [<relate_op> <math_expression>]
+<relation>        ::= | <math_bits> [<relate_op> <math_bits>]
 <math_bits>       ::= <math_expression> [<bit_op> <math_expression>]*
 <math_expression> ::= <math_term> [<add_op> <math_term>]*
 <math_term>       ::= <math_signed_factor> [<mult_op> <math_signed_factor>]*
 <math_signed_factor> ::= [-] <math_factor>
-<factor>          ::= <call> | <index> | <number_literal> | <variable> | (<bool_expression>)
+<factor>          ::= <call> | <index> | <number_literal> | <variable> | ( <bool_expression> )
+<identifier>      ::= <variable> [<call> | <index>]
 <index>           ::= <variable> [ <bool_statement> ]
 
 <call>            ::= <variable> ( [<bool_statement>] [, <bool_statement>]* )
@@ -61,6 +62,7 @@ void LogicalStatement(CPU *cpu, Files file);
 void Statement(CPU *cpu, Files file);
 void Assignment(CPU *cpu, Files file);
 
+void Identifier(CPU *cpu, Files file);
 // Note that this call will error out if the variable is not known yet.
 //   Declarations must back off the name to call this.
 std::string Variable(CPU *cpu, Files file);

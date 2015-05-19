@@ -80,6 +80,12 @@ void CPU::JumpZero(const std::string &symbol){
 
 }
 
+void CPU::Negate(){
+
+    EmitLine(emit, {"imul", {"rax", "-1"}});
+
+}
+
 void CPU::Add(){
 
     EmitLine(emit, {"add", {"rax", "rbx"}});

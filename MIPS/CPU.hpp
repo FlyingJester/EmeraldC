@@ -35,11 +35,19 @@ public:
 
 // Arithmetic operations
 
+    void Negate() override;
     void Add() override;
     void Subtract() override;
     void Multiply() override;
     void Divide() override;
     void Modulo() override;
+
+    void BitwiseAnd() override;
+    void BitwiseOr() override;
+    void BitwiseXor() override;
+
+    void BitShiftLeft() override;
+    void BitShiftRight() override;
 
 // Boolean operations
 
@@ -57,13 +65,6 @@ public:
         booleanCast("$t2");
         BitwiseOr();        
     }
-
-    void BitwiseAnd() override;
-    void BitwiseOr() override;
-    void BitwiseXor() override;
-
-    void BitShiftLeft() override;
-    void BitShiftRight() override;
 
 // Relational operations
 

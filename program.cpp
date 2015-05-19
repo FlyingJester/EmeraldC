@@ -110,7 +110,7 @@ unsigned JumpLabeller<false>::i = 0;
 
 // <program>         ::= [<block>]* <end_of_input>
 void Program(CPU *cpu, Files file){
-    while(!EndOfInput(file)){
+    while((!EndOfInput(file)) && (!Peek('@', file))){
         Block(cpu, file);
     }
 }
@@ -177,6 +177,24 @@ void Statement(CPU *cpu, Files file){
 }
 
 void Assignment(CPU *cpu, Files file);
+
+void Identifier(CPU *cpu, Files file){
+    const std::string name = GetName(file);
+    if(Peek()=='('){
+        Match('(', file);
+        Match(')', file);
+        cpu->Call(name);
+    }
+    else if(Peek()=='['){
+        Match('[', file);
+        Match(']', file);
+        cpu->Call(name);
+    }
+    else{
+        cpu->EnsureVariable(name, file);
+        cpu->LoadVariable(name);
+    }
+}
 
 bool IsControl(Files file){
     return

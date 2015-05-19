@@ -1,6 +1,6 @@
 import os
 
-files = ["compiler.cpp", "error.cpp", "io.cpp", "term_type.cpp", "arithmetic_expression.cpp", 
+files = ["compiler.cpp", "error.cpp", "io.cpp", "term_type.cpp", "math_expression.cpp", 
   "boolean_expression.cpp", "relation.cpp", "asm.cpp", "program.cpp", "integral_types.cpp", 
   "declaration.cpp", "CPU.cpp"]
 
