@@ -25,6 +25,8 @@ public:
     
 // Jumps
     void Call(const std::string &symbol) override;
+    void Return() override;
+
     void Jump(const std::string &symbol) override;
     void JumpZero(const std::string &symbol) override;
     void JumpNotZero(const std::string &symbol) override;

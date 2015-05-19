@@ -40,6 +40,10 @@ void CPU::Call(const std::string &symbol){
     EmitLine(emit, {"jal", {symbol}});
 }
 
+void CPU::Return(){
+    EmitLine(emit, {"jr", {"$ra"}});
+}
+
 void CPU::Jump(const std::string &symbol){
     EmitLine(emit, {"j", {symbol}});
     assert(symbol!="4");
@@ -133,7 +137,7 @@ void CPU::WriteSymbols(Files file){
     fputs("    .data\n", file.out);
     while(!emit->variables.empty()){
         fputs(emit->variables.back().name.c_str(), file.out);
-        fputs(":  0\n", file.out);
+        fputs(": ", file.out);
         switch(emit->variables.back().type.size){
             case 1:
             fputs(".byte", file.out);

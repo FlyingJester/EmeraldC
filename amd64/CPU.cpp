@@ -54,6 +54,12 @@ void CPU::Call(const std::string &symbol){
 
 }
 
+void CPU::Return(){
+
+    EmitLine(emit, {"ret", {}});
+
+}
+
 void CPU::Jump(const std::string &symbol){
 
     EmitLine(emit, {"jmp", {symbol}});

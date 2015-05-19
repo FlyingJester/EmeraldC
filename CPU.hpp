@@ -28,6 +28,8 @@ public:
 
 // Jumps
     virtual void Call(const std::string &symbol) = 0;
+    virtual void Return() = 0;
+
     virtual void Jump(const std::string &symbol) = 0;
     virtual void JumpNotZero(const std::string &symbol) = 0;
     virtual void JumpZero(const std::string &symbol) = 0;

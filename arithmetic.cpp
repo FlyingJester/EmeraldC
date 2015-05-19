@@ -20,13 +20,15 @@ void Factor(CPU *cpu, Files file){
 }
 
 void Assignment(CPU *cpu, Files file){
+
     const std::string name = GetName(file);
     Match('=', file);
     Boolean::Expression(cpu, file);
         
     cpu->StoreVariable(name);
-        
+
     cpu->EnsureVariable(name, file);
+
     Match(';', file);
 }
 

@@ -1,9 +1,9 @@
 #include "program.hpp"
-#include "error.hpp"
-#include "arithmetic.hpp"
-#include "boolean.hpp"
+#include "boolean_expression.hpp"
 #include "integral_types.hpp"
 #include "declaration.hpp"
+#include "io.hpp"
+#include "error.hpp"
 
 namespace Compiler {
 
@@ -56,8 +56,6 @@ public:
         cpu->JumpZero(str_);
     }
 
-    
-
 };
 
 template<>
@@ -69,58 +67,175 @@ unsigned JumpLabeller<true>::i = 0;
 template<>
 unsigned JumpLabeller<false>::i = 0;
 
+/*
+<program>         ::= [<block>]* <end_of_input>
+<block>           ::= { <operation>* } | <operation>
+<operation>       ::= <logical_line> | <control>
+<logical_line>    ::= <logical_statement> ;
+<logical_statement> ::= <statement> [, <statement> ]
+<statement>       ::= <assignment> | <bool_statement> | <control_operator>
+<assignment>      ::= <variable> = <bool_statement>
+
+<bool_statement>  ::= <bool_expression> [, <bool_expression]*
+<bool_expression> ::= <bool_term> [<log_op> <bool_term]*
+<bool_term>       ::= <bool_factor>
+<bool_factor>     ::= <bool> | <variable> | <relation>
+<bool>            ::= true | false
+
+<relation>        ::= | <math_expression> [<relate_op> <math_expression>]
+<math_bits>       ::= <math_expression> [<bit_op> <math_expression>]*
+<math_expression> ::= <math_term> [<add_op> <math_term>]*
+<math_term>       ::= <math_signed_factor> [<mult_op> <math_signed_factor>]*
+<math_signed_factor> ::= [-] <math_factor>
+<factor>          ::= <call> | <index> | <number_literal> | <variable> | (<bool_expression>)
+<index>           ::= <variable> [ <bool_statement> ]
+
+<call>            ::= <variable> ( [<bool_statement>] [, <bool_statement>]* )
+
+<control>         ::= <if> | <while> | <do> | <for>
+
+<control_operator> ::= <break> | <return>
+
+<if>    ::= if ( <statement> ) <block> [elif] *
+<elif>  ::= [else <if>] [ <else> ]
+<else>  ::= else <block>
+
+<while> ::= while ( <statement> ) block
+<do>    ::= do <block> while ( <statement> ) ;
+<for>   ::= for ( <logical_line> <logical_line> <logical_statement> ) <block>
+
+<break> ::= break
+<return>::= return ( <logical_line> )
+*/
+
+// <program>         ::= [<block>]* <end_of_input>
 void Program(CPU *cpu, Files file){
-    cpu->Label("main");
-
-    do{
+    while(!EndOfInput(file)){
         Block(cpu, file);
-    }while(!(EndOfInput(file)||(Peek()=='@')));
-
-    cpu->Exit();
-
+    }
 }
 
-void Statement(CPU *cpu, Files file){
-    if(Peek("if", file))
-        If(cpu, file);
-    else if(Peek("while", file))
-        While(cpu, file);
-    else if(Peek("do", file))
-        DoWhile(cpu, file);
-    else if(Peek("break", file))
-        Break(cpu, file);
-    else if(Peek("for", file))
-        For(cpu, file);
-    else if(IsType(file))
-        Declaration(cpu, file);
-    else
-        Arithmetic::Assignment(cpu, file);
-//        Boolean::Expression(emit, file);
-}
-
+// <block>           ::= { <operation>* } | <operation>
 void Block(CPU *cpu, Files file){
-    if(Peek()=='{'){
+    if(Peek('{', file)){
         Match('{', file);
-        while(Peek()!='}')
-            Statement(cpu, file);
+        while(!Peek('}', file)){
+            Operation(cpu, file);
+        }
         Match('}', file);
     }
-    else
-        Statement(cpu, file);
-
+    else{
+        Operation(cpu, file);
+    }
 }
 
-void Conditional(CPU *cpu, Files file){
-    Match('(', file);
-    Boolean::Expression(cpu, file);
-    Match(')', file);
+// <operation>       ::= <logical_line> | <control>
+void Operation(CPU *cpu, Files file){
+    if(IsControl(file))
+        Control(cpu, file);
+    else
+        LogicalLine(cpu, file);
+}
+
+// <logical_line>    ::= <logical_statement> ;
+void LogicalLine(CPU *cpu, Files file){
+    LogicalStatement(cpu, file);
+    Match(';', file);
+}
+
+// <logical_statement> ::= <statement> [, <statement> ] | <typed_declaration>
+void LogicalStatement(CPU *cpu, Files file){
+    if(IsType(file)){
+        TypedDeclaration(cpu, file);
+    }
+    else{
+        Statement(cpu, file);
+        while(Peek(',', file)){
+            Match(',', file);
+            Statement(cpu, file);
+        }
+    }
+}
+
+// <statement>       ::= <assignment> | <bool_statement> | <control_operator>
+void Statement(CPU *cpu, Files file){
+    if(IsName(file)){
+        const std::string name = GetName(file);
+        const bool is_assign = Peek('=', file);
+        UnMatch(name, file);
+        if(is_assign){
+            Assignment(cpu, file);
+            return;
+        }
+    }
+    else if(IsControlOperator(file)){
+        ControlOperator(cpu, file);
+    }
+    else{
+        Boolean::Statement(cpu, file);
+    }
+}
+
+void Assignment(CPU *cpu, Files file);
+
+bool IsControl(Files file){
+    return
+        Peek("if", file) || Peek("while", file) ||
+        Peek("do", file) || Peek("for", file);
+}
+
+void Control(CPU *cpu, Files file){
+    if(Peek("if", file)){
+        If(cpu, file);
+    }
+    else if(Peek("while", file)){
+        While(cpu, file);
+    }
+    else if(Peek("do", file)){
+        DoWhile(cpu, file);
+    }
+    else if(Peek("for", file)){
+        For(cpu, file);
+    }
+    else
+        Expected("Control Statement", file);
+}
+
+bool IsControlOperator(Files file){
+    return
+        Peek("break", file) || Peek("return", file);
+}
+
+void ControlOperator(CPU *cpu, Files file){
+    if(Peek("break", file)){
+        Break(cpu, file);
+    }
+    else if (Peek("return", file)){
+        cpu->Return();
+    }
+    else
+        Expected("Control Operator", file);
+}
+
+// <assignment>      ::= <variable> = <bool_statement>
+void Assignment(CPU *cpu, Files file){
+    const std::string name = Variable(cpu, file);
+    Match('=', file);
+    Boolean::Statement(cpu, file);
+    cpu->StoreVariable(name);
+}
+
+std::string Variable(CPU *cpu, Files file){
+    const std::string name = GetName(file);
+    cpu->EnsureVariable(name, file);
+    return name;
 }
 
 void If(CPU *cpu, Files file){
     Match("if", file);
     JumpLabeller<false> label;
 
-    Conditional(cpu, file);
+    LogicalStatement(cpu, file);
 
     label.jumpZero(cpu);
 
@@ -150,7 +265,7 @@ void While(CPU *cpu, Files file){
    
     start.emit(cpu);
 
-    Conditional(cpu, file);
+    LogicalStatement(cpu, file);
 
     end.jumpZero(cpu);
 
@@ -171,7 +286,7 @@ void DoWhile(CPU *cpu, Files file){
 
     Match("while", file);
     
-    Conditional(cpu, file);
+    LogicalStatement(cpu, file);
     start.jumpNotZero(cpu);
     end.emit(cpu);
 }
@@ -219,13 +334,13 @@ void For(CPU *cpu, Files file){
     Match("for", file);
     Match('(', file);
         
-    Boolean::Expression(cpu, file);
+    LogicalLine(cpu, file);
 
     Match(';', file);
     
     tester.emit(cpu);
 
-    Boolean::Expression(cpu, file);
+    LogicalLine(cpu, file);
 
     end_iter.jumpNotZero(cpu);
     end.jump(cpu);
@@ -234,7 +349,7 @@ void For(CPU *cpu, Files file){
     
     start_iter.emit(cpu);
     
-    Boolean::Expression(cpu, file);
+    LogicalStatement(cpu, file);
     
     Match(')', file);
     
