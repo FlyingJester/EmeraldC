@@ -54,6 +54,12 @@ void CPU::Call(const std::string &symbol){
 
 }
 
+void CPU::Return(){
+
+    EmitLine(emit, {"ret", {}});
+
+}
+
 void CPU::Jump(const std::string &symbol){
 
     EmitLine(emit, {"jmp", {symbol}});
@@ -71,6 +77,12 @@ void CPU::JumpZero(const std::string &symbol){
 
     test("rax");
     EmitLine(emit, {"jz", {symbol}});
+
+}
+
+void CPU::Negate(){
+
+    EmitLine(emit, {"imul", {"rax", "-1"}});
 
 }
 
@@ -164,6 +176,14 @@ void CPU::BitwiseXor(){
 
     EmitLine(emit, {"xor", {"rax", "rbx"}});
 
+}
+
+void CPU::BitShiftLeft(){
+    EmitLine(emit, {"shl", {"rax", "rbx"}});
+}
+
+void CPU::BitShiftRight(){
+    EmitLine(emit, {"shr", {"rax", "rbx"}});
 }
 
 void CPU::GreaterThan(){

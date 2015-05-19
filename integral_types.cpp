@@ -1,6 +1,23 @@
 #include "integral_types.hpp"
+#include "CPU.hpp"
 
 namespace Compiler {
+
+// TODO: Make this depend on the CPU address size.
+const struct Integral &PointerType(CPU *cpu){
+    const static struct Integral p = { 4, 1, true, false, false, false};
+    return p;
+}
+
+const struct Integral &CharType(CPU *cpu){
+    const static struct Integral c = { 1, 0, false, false, false, false};
+    return c;
+}
+
+const struct Integral &IntType(CPU *cpu){
+    const static struct Integral c = { 4, 0, true, false, false, false};
+    return c;
+}
 
 // Note that this is slightly reordered. I figure that 'int' and 'unsigned' are the two most common types.
 bool IsType(Files file){

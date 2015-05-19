@@ -60,7 +60,7 @@ unsigned GetColumn(Files file){
 
 bool EndOfInput(Files file){
     SkipWhiteSpace(file);
-    return feof(file.in) || (next.find(EOF)!=std::string::npos);
+    return feof(file.in) || (next.front()==EOF);
 }
 
 unsigned Peek(){
@@ -132,7 +132,7 @@ void Match(unsigned x, Files file){
 std::string GetName(Files file){
     std::string s;
 
-    if(!IsAlpha(Peek()))
+    if(!IsName(file))
         Expected("Name", file);
 
     while(IsAlpha(Peek()) || IsDigit(Peek())){
@@ -158,7 +158,7 @@ std::string GetDecNumber(Files file){
 }
 
 std::string GetHexNumber(Files file){
-    std::string s;
+    unsigned int n = 0;
 
     if(Peek("0X", file))
         Match("0X", file);
@@ -166,14 +166,17 @@ std::string GetHexNumber(Files file){
         Match("0x", file);
     
     while(IsHexDigit(Peek())){
-        s+=GetChar(file);
+        char c = GetChar(file);
+        unsigned char d= ((c<='9')&&(c>='0'))?(c-'0'):(c-'A'+10);
+        n<<=4;
+        n |= d;
     }
     if(IsAlpha(Peek()))
         Unexpected("Character in hexadecimal literal ", file);
 
     SkipWhiteSpace(file);
 
-    return s;
+    return std::to_string(n);
 
 }
 
@@ -205,7 +208,7 @@ std::string GetBinNumber(Files file){
 std::string GetNumber(Files file){
     std::string s;
     
-    if(!IsDigit(Peek()))
+    if(!IsNumber(file))
         Expected("Integer", file);
 
     if(Peek("0x", file) || Peek("0X", file))
@@ -214,6 +217,14 @@ std::string GetNumber(Files file){
         return GetBinNumber(file);
     else
         return GetDecNumber(file);
+}
+
+bool IsName(Files file){
+    return IsAlpha(Peek());
+}
+
+bool IsNumber(Files file){
+    return IsDigit(Peek());
 }
 
 }

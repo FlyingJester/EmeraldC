@@ -4,6 +4,12 @@
 #include "optimizer.hpp"
 #include <cassert>
 
+
+// Save ourselves from typing the same registers over and over.
+#define INTEL_STYLE_1_2_1(OP) {OP, {"$t1", "$t2", "$t1"}}
+#define INTEL_STYLE INTEL_STYLE_1_2_1
+#define COMPARATOR INTEL_STYLE_1_2_1
+
 namespace Compiler {
 namespace MIPS{
 
@@ -40,6 +46,10 @@ void CPU::Call(const std::string &symbol){
     EmitLine(emit, {"jal", {symbol}});
 }
 
+void CPU::Return(){
+    EmitLine(emit, {"jr", {"$ra"}});
+}
+
 void CPU::Jump(const std::string &symbol){
     EmitLine(emit, {"j", {symbol}});
     assert(symbol!="4");
@@ -53,12 +63,18 @@ void CPU::JumpZero(const std::string &symbol){
     EmitLine(emit, {"beq", {"$t1", "$zero", symbol}});
 }
 
+void CPU::Negate(){
+    EmitLine(emit, {"li", {"$t0", "-1"}});
+    EmitLine(emit, {"mult", {"$t1", "$t0"}});
+    EmitLine(emit, {"mflo", {"$t1"}});
+}
+
 void CPU::Add(){
-    EmitLine(emit, {"add", {"$t1", "$t1", "$t2"}});
+    EmitLine(emit, INTEL_STYLE("add"));
 }
 
 void CPU::Subtract(){
-    EmitLine(emit, {"sub", {"$t1", "$t2", "$t1"}});
+    EmitLine(emit, INTEL_STYLE("sub"));
 }
 
 void CPU::Multiply(){
@@ -84,19 +100,24 @@ void CPU::False(){
     EmitLine(emit, {"move", {"$t1", "$zero"}});
 }
 
-// Save ourselves from typing the same registers over and over.
-#define COMPARATOR(OP) {OP, {"$t1", "$t2", "$t1"}}
-
 void CPU::BitwiseAnd(){
-    EmitLine(emit, COMPARATOR("and"));
+    EmitLine(emit, INTEL_STYLE("and"));
 }
 
 void CPU::BitwiseOr(){
-    EmitLine(emit, COMPARATOR("or"));
+    EmitLine(emit, INTEL_STYLE("or"));
 }
 
 void CPU::BitwiseXor(){
-    EmitLine(emit, COMPARATOR("xor"));
+    EmitLine(emit, INTEL_STYLE("xor"));
+}
+
+void CPU::BitShiftLeft(){
+    EmitLine(emit, INTEL_STYLE("sllv"));
+}
+
+void CPU::BitShiftRight(){
+    EmitLine(emit, INTEL_STYLE("srlv"));
 }
 
 void CPU::GreaterThan(){
@@ -133,7 +154,7 @@ void CPU::WriteSymbols(Files file){
     fputs("    .data\n", file.out);
     while(!emit->variables.empty()){
         fputs(emit->variables.back().name.c_str(), file.out);
-        fputs(":  0\n", file.out);
+        fputs(": ", file.out);
         switch(emit->variables.back().type.size){
             case 1:
             fputs(".byte", file.out);

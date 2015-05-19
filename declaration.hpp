@@ -3,10 +3,14 @@
 #include "io.hpp"
 
 namespace Compiler {
-//
-// <type> ::= <user_type> | <integral_type>
-// <declaration> ::= <type> <identifier> [<argument_list> | <assignment>]
-// 
-void Declaration(CPU *cpu, Files file);
+
+// <typed_declaration>::= <type> <indirection_declaration> [, <indirection_declaration>]
+void TypedDeclaration(CPU *cpu, Files file);
+
+// <indirection_declaration> ::= <[*]+> <symbol_declaration>
+void IndirectionDeclaration(const struct Integral &type, CPU *cpu, Files file);
+
+// <symbol_declaration> ::= <variable> [ = <bool_expression> ] | <variable> ( [<type> <variable>] [, <type> <variable>]* )
+void SymbolDeclaration(const struct Integral &type, CPU *cpu, Files file);
 
 }

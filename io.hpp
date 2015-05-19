@@ -27,6 +27,9 @@ void UnMatch(const std::string &s, Files file);
 std::string GetName(Files file);
 std::string GetNumber(Files file);
 
+bool IsName(Files file);
+bool IsNumber(Files file);
+
 bool EndOfInput(Files file);
 
 unsigned GetLine(Files file);

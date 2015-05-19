@@ -5,6 +5,7 @@
 namespace Compiler {
 
 struct Variable;
+struct Integral;
 struct Emitter;
 
 // Note that since many of the methods are also keywords in C/C++,
@@ -28,6 +29,8 @@ public:
 
 // Jumps
     virtual void Call(const std::string &symbol) = 0;
+    virtual void Return() = 0;
+
     virtual void Jump(const std::string &symbol) = 0;
     virtual void JumpNotZero(const std::string &symbol) = 0;
     virtual void JumpZero(const std::string &symbol) = 0;
@@ -35,6 +38,7 @@ public:
     virtual void Exit() = 0;
 
 // Arithmetic operations
+    virtual void Negate() = 0;
     virtual void Add() = 0;
     virtual void Subtract() = 0;
     virtual void Multiply() = 0;
@@ -44,6 +48,9 @@ public:
     virtual void BitwiseAnd() = 0;
     virtual void BitwiseOr() = 0;
     virtual void BitwiseXor() = 0;
+
+    virtual void BitShiftLeft() = 0;
+    virtual void BitShiftRight() = 0;
 // Boolean operations
     virtual void True() = 0;
     virtual void False() = 0;
@@ -66,6 +73,7 @@ public:
     virtual void WriteSymbols(Files file) = 0;
     void EnsureVariable(const std::string& var, Files file);
     void CreateVariable(const struct Variable& var, Files file);
+    virtual void CreateVariable(const struct Integral& type, const std::string &name, Files file) final;
     virtual void Label(const std::string& name);
 
     static CPU *Create(const std::string &platform, Files file);
