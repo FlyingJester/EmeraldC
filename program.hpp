@@ -22,7 +22,7 @@ namespace Compiler {
 <bool_statement>  ::= <bool_expression> [, <bool_expression]*
 <bool_expression> ::= <bool_term> [<log_op> <bool_term]*
 <bool_term>       ::= <bool_factor>
-<bool_factor>     ::= <bool> | <variable> | <relation>
+<bool_factor>     ::= <bool> | <relation>
 <bool>            ::= true | false
 
 <relation>        ::= | <math_expression> [<relate_op> <math_expression>]

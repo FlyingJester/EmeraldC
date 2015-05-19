@@ -1,5 +1,6 @@
-#include "equation.hpp"
-#include "arithmetic.hpp"
+#include "relation.hpp"
+#include "arithmetic_expression.hpp"
+#include "CPU.hpp"
 
 namespace Compiler {
 

@@ -4,6 +4,8 @@
 
 namespace Compiler {
 
+void Relation(CPU *cpu, Files file);
+
 void GreaterThan(CPU *cpu, Files file);
 void GreaterThanOrEqual(CPU *cpu, Files file);
 void LessThan(CPU *cpu, Files file);
