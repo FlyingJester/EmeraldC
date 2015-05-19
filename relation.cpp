@@ -15,6 +15,7 @@ void Relation(CPU *cpu, Files file){
 
 
 void RelationalOperator(CPU *cpu, Files file){
+    cpu->PushValue();
     if(Peek(">=", file)){
         Match(">=", file);
         Math::Bits(cpu, file);

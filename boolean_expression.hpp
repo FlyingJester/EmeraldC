@@ -21,11 +21,6 @@ void NotFactor(CPU *cpu, Files file);
 // <bool>            ::= true | false
 void Factor(CPU *cpu, Files file);
 
-void Or(CPU *cpu, Files file);
-void And(CPU *cpu, Files file);
-
-bool IsOrOp(Files file);
-bool IsAndOp(Files file);
 bool IsNotOp(Files file);
 
 }

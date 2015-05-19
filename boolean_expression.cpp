@@ -16,20 +16,22 @@ void Statement(CPU *cpu, Files file){
 // <bool_expression> ::= <bool_term> [<or_op> <bool_term]*
 void Expression(CPU *cpu, Files file){
     Term(cpu, file);
-    while(IsOrOp(file)){
+    while(Peek("||", file)){
         Match("||", file);
         Term(cpu, file);
-        Or(cpu, file);
+        cpu->PopValue();
+        cpu->BooleanOr();
     }
 }
 
 // <bool_term>       ::= <bool_not_factor> [<and_op> <bool_not_factor]*
 void Term(CPU *cpu, Files file){
     NotFactor(cpu, file);
-    while(IsAndOp(file)){
+    while(Peek("&&", file)){
         Match("&&", file);
         NotFactor(cpu, file);
-        And(cpu, file);
+        cpu->PopValue();
+        cpu->BooleanAnd();
     }
 }
 
@@ -57,28 +59,6 @@ void Factor(CPU *cpu, Files file){
     }
     else
         Relation(cpu, file);
-}
-
-void And(CPU *cpu, Files file){
-    Match("&&", file);
-    Term(cpu, file);
-    cpu->PopValue();
-    cpu->BooleanAnd();
-}
-
-void Or(CPU *cpu, Files file){
-    Match("||", file);
-    Term(cpu, file);
-    cpu->PopValue();
-    cpu->BooleanOr();
-}
-
-bool IsOrOp(Files file){
-    return Peek("||", file);
-}
-
-bool IsAndOp(Files file){
-    return Peek("&&", file);
 }
 
 bool IsNotOp(Files file){
