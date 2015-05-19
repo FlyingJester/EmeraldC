@@ -178,21 +178,24 @@ void Statement(CPU *cpu, Files file){
 
 void Assignment(CPU *cpu, Files file);
 
+// <identifier>      ::= <variable> [<call> | <index>]
 void Identifier(CPU *cpu, Files file){
     const std::string name = GetName(file);
-    if(Peek()=='('){
-        Match('(', file);
-        Match(')', file);
-        cpu->Call(name);
-    }
-    else if(Peek()=='['){
-        Match('[', file);
-        Match(']', file);
-        cpu->Call(name);
-    }
-    else{
-        cpu->EnsureVariable(name, file);
-        cpu->LoadVariable(name);
+    switch(Peek()){
+        case '(':
+            Match('(', file);
+            Match(')', file);
+            cpu->Call(name);
+            Abort("Implement Call. FIXME!", file);
+            return;
+        case '[':
+            Match('[', file);
+            Match(']', file);
+            Abort("Implement Subscript. FIXME!", file);
+            return;
+        default:
+            cpu->EnsureVariable(name, file);
+            cpu->LoadVariable(name);
     }
 }
 
