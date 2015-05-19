@@ -46,6 +46,9 @@ public:
     virtual void BitwiseAnd() = 0;
     virtual void BitwiseOr() = 0;
     virtual void BitwiseXor() = 0;
+
+    virtual void BitShiftLeft() = 0;
+    virtual void BitShiftRight() = 0;
 // Boolean operations
     virtual void True() = 0;
     virtual void False() = 0;

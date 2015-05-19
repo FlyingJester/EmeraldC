@@ -4,6 +4,12 @@
 #include "optimizer.hpp"
 #include <cassert>
 
+
+// Save ourselves from typing the same registers over and over.
+#define INTEL_STYLE_1_2_1(OP) {OP, {"$t1", "$t2", "$t1"}}
+#define INTEL_STYLE INTEL_STYLE_1_2_1
+#define COMPARATOR INTEL_STYLE_1_2_1
+
 namespace Compiler {
 namespace MIPS{
 
@@ -58,11 +64,11 @@ void CPU::JumpZero(const std::string &symbol){
 }
 
 void CPU::Add(){
-    EmitLine(emit, {"add", {"$t1", "$t1", "$t2"}});
+    EmitLine(emit, INTEL_STYLE("add"));
 }
 
 void CPU::Subtract(){
-    EmitLine(emit, {"sub", {"$t1", "$t2", "$t1"}});
+    EmitLine(emit, INTEL_STYLE("sub"));
 }
 
 void CPU::Multiply(){
@@ -88,19 +94,24 @@ void CPU::False(){
     EmitLine(emit, {"move", {"$t1", "$zero"}});
 }
 
-// Save ourselves from typing the same registers over and over.
-#define COMPARATOR(OP) {OP, {"$t1", "$t2", "$t1"}}
-
 void CPU::BitwiseAnd(){
-    EmitLine(emit, COMPARATOR("and"));
+    EmitLine(emit, INTEL_STYLE("and"));
 }
 
 void CPU::BitwiseOr(){
-    EmitLine(emit, COMPARATOR("or"));
+    EmitLine(emit, INTEL_STYLE("or"));
 }
 
 void CPU::BitwiseXor(){
-    EmitLine(emit, COMPARATOR("xor"));
+    EmitLine(emit, INTEL_STYLE("xor"));
+}
+
+void CPU::BitShiftLeft(){
+    EmitLine(emit, INTEL_STYLE("sllv"));
+}
+
+void CPU::BitShiftRight(){
+    EmitLine(emit, INTEL_STYLE("srlv"));
 }
 
 void CPU::GreaterThan(){

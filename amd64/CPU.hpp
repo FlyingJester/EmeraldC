@@ -48,6 +48,9 @@ public:
     void BitwiseOr() override;
     void BitwiseXor() override;
 
+    void BitShiftLeft() override;
+    void BitShiftRight() override;
+
 // Relational operations
 
     void GreaterThan() override;

@@ -172,6 +172,14 @@ void CPU::BitwiseXor(){
 
 }
 
+void CPU::BitShiftLeft(){
+    EmitLine(emit, {"shl", {"rax", "rbx"}});
+}
+
+void CPU::BitShiftRight(){
+    EmitLine(emit, {"shr", {"rax", "rbx"}});
+}
+
 void CPU::GreaterThan(){
 
     EmitLine(emit, {"cmp", {"rax", "rbx"}});

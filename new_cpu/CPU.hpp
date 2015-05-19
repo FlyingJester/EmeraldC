@@ -2,13 +2,9 @@
 #include "../CPU.hpp"
 
 namespace Compiler{
-namespace MIPS{
+namespace new_cpu{
 
 class CPU : public Compiler::CPU {
-protected:
-    void push(const std::string &reg) const;
-    void pop(const std::string &reg) const;
-    void booleanCast(const std::string &reg) const;
 public:
     
     void LoadVariable(const std::string &name) override;
@@ -16,17 +12,11 @@ public:
     void LoadNumber(const std::string &number) override;
     int Optimize(unsigned level) override;
     
-    void PushValue() override {
-        push("$t1");
-    }
-    void PopValue() override {
-        pop("$t2");
-    }
+    void PushValue() override;
+    void PopValue() override;
     
 // Jumps
     void Call(const std::string &symbol) override;
-    void Return() override;
-
     void Jump(const std::string &symbol) override;
     void JumpZero(const std::string &symbol) override;
     void JumpNotZero(const std::string &symbol) override;
@@ -46,24 +36,12 @@ public:
     void True() override;
     void False() override;
 
-    void BooleanAnd() override{
-        booleanCast("$t1");
-        booleanCast("$t2");
-        BitwiseAnd();
-    }
-
-    void BooleanOr() override{
-        booleanCast("$t1");
-        booleanCast("$t2");
-        BitwiseOr();        
-    }
+    void BooleanAnd() override;
+    void BooleanOr() override;
 
     void BitwiseAnd() override;
     void BitwiseOr() override;
     void BitwiseXor() override;
-
-    void BitShiftLeft() override;
-    void BitShiftRight() override;
 
 // Relational operations
 
@@ -74,10 +52,4 @@ public:
     void Equal() override;
     void NotEqual() override;
 
-    void WriteSymbols(Files file) override;
-
 };
-
-
-}
-}
