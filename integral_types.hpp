@@ -4,12 +4,20 @@
 namespace Compiler {
 
 struct Integral{
-    unsigned char size; // In bytes.
+    unsigned char size, // In bytes.
+        indirection; //  0 is value, 1 is address, (*), 2 is address of pointer (**) etc..
     bool is_signed;
     bool fpu;
     bool is_const; // Unused
     bool is_static; // Unused
 };
+
+class CPU;
+
+// Some basic types.
+const struct Integral &PointerType(CPU *cpu);
+const struct Integral &CharType(CPU *cpu);
+const struct Integral &IntType(CPU *cpu);
 
 // C has a funny way about it.
 //

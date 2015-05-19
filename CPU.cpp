@@ -22,6 +22,10 @@ CPU::CPU(){
     emit = CreateEmitter();
 }
 
+void CPU::CreateVariable(const struct Integral& type, const std::string &name, Files file){
+    CreateVariable({type, name}, file);
+}
+
 void CPU::CreateVariable(const struct Variable& var, Files file){
     Compiler::CreateVariable(var, emit, file);
 }

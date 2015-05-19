@@ -19,7 +19,8 @@ namespace Compiler {
 <symbol_declaration> ::= <declaration> [ ( [<type> <variable>] [, <type> <variable>]* ) ]
 <declaration>     ::= <variable> | <assignment>
 
-<bool_statement>  ::= <bool_expression> [, <bool_expression]*
+NOTE: Do we really need to handle commas here?
+<bool_statement>  ::= <bool_expression> [, <bool_expression>]*
 <bool_expression> ::= <bool_term> [<log_op> <bool_term]*
 <bool_term>       ::= <bool_factor>
 <bool_factor>     ::= <bool> | <relation>
