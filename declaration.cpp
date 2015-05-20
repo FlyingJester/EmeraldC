@@ -6,6 +6,17 @@
 
 namespace Compiler{
 
+FunctionLabeller *FunctionLabeller::last = nullptr;
+
+const std::string &FunctionLabeller::ScopePrefix(){
+    static const std::string f_l_empty = "";
+
+    if(last)
+        return last->name;
+    else
+        return f_l_empty;
+
+}
 
 // <typed_declaration>::= <type> <indirection_declaration> [, <indirection_declaration>]
 void TypedDeclaration(CPU *cpu, Files file){
@@ -33,19 +44,27 @@ void IndirectionDeclaration(const struct Integral &type, CPU *cpu, Files file){
     SymbolDeclaration(our_type, cpu, file);
 }
 
-
-// <symbol_declaration> ::= <variable> [ = <bool_expression> ] | <variable> ( [<type> <variable>] [, <type> <variable>]* )
+// <symbol_declaration> ::= <variable_declaration> | <variable> ( [<type> <variable>] [, <type> <variable>]* )
 void SymbolDeclaration(const struct Integral &type, CPU *cpu, Files file){
     const std::string name = GetName(file);
     if(Peek('(', file)){
         Abort("Function Declarations not implemented. FIXME!", file);
     }
     else{
-        cpu->CreateVariable(type, name, file);
-        if(Peek('=', file)){
-            UnMatch(name, file);
-            Assignment(cpu, file);
-        }
+        UnMatch(name, file);
+        VariableDeclaration(type, cpu, file);
+    }
+}
+
+// TODO: Assignment for non-scoped variables.
+// <variable_declaration> ::= <variable> [ = <bool_expression> ]
+void VariableDeclaration(const struct Integral &type, CPU *cpu, Files file){
+    const std::string name = GetName(file) + FunctionLabeller::ScopePrefix();
+
+    cpu->CreateVariable(type, name, file);
+    if(Peek('=', file)){
+        UnMatch(name, file);
+        Assignment(cpu, file);
     }
 }
 
