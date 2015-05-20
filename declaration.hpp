@@ -4,21 +4,6 @@
 
 namespace Compiler {
 
-class FunctionLabeller {
-    const std::string name;
-    static FunctionLabeller *last;
-public:
-    FunctionLabeller(const std::string &n)
-      : name(n){
-        last = this;
-    }
-    ~FunctionLabeller(){
-        last = nullptr;
-    }
-
-    static const std::string &ScopePrefix();
-};
-
 // <typed_declaration>::= <type> <indirection_declaration> [, <indirection_declaration>]
 void TypedDeclaration(CPU *cpu, Files file);
 

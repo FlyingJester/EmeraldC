@@ -17,11 +17,6 @@ struct Op {
     std::string code, operands[max_operands];
 };
 
-struct Variable {
-    struct Integral type;
-    std::string name;
-};
-
 Emitter *CreateEmitter();
 
 // Unconditionally emits an op

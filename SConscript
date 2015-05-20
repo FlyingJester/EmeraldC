@@ -2,7 +2,7 @@ import os
 
 compiler_files = ["compiler.cpp", "error.cpp", "io.cpp", "term_type.cpp", "math_expression.cpp", 
   "boolean_expression.cpp", "relation.cpp", "asm.cpp", "program.cpp", "integral_types.cpp", 
-  "declaration.cpp", "CPU.cpp"]
+  "declaration.cpp", "function.cpp", "CPU.cpp"]
 
 CPUs = ["MIPS", "MIPS_opt", "amd64", "amd64_opt"]
 CPU_use = []

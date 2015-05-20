@@ -1,22 +1,11 @@
 #include "declaration.hpp"
 #include "integral_types.hpp"
+#include "function.hpp"
 #include "asm.hpp"
 #include "program.hpp"
 #include "error.hpp"
 
 namespace Compiler{
-
-FunctionLabeller *FunctionLabeller::last = nullptr;
-
-const std::string &FunctionLabeller::ScopePrefix(){
-    static const std::string f_l_empty = "";
-
-    if(last)
-        return last->name;
-    else
-        return f_l_empty;
-
-}
 
 // <typed_declaration>::= <type> <indirection_declaration> [, <indirection_declaration>]
 void TypedDeclaration(CPU *cpu, Files file){
@@ -48,7 +37,27 @@ void IndirectionDeclaration(const struct Integral &type, CPU *cpu, Files file){
 void SymbolDeclaration(const struct Integral &type, CPU *cpu, Files file){
     const std::string name = GetName(file);
     if(Peek('(', file)){
-        Abort("Function Declarations not implemented. FIXME!", file);
+
+        if(FunctionLabeller::InFunctionScope()){
+            Abort(" Cannot define functions here, already in function scope.", file);
+        }
+        
+        Match('(', file);
+        
+        struct Function<struct Variable> function_decl = {type, name, {}};
+        
+        while(IsType(file)){
+            struct Integral type;
+            Type(type, file);
+
+            if(IsName(file)){
+                const std::string name = GetName(file);
+                
+            }
+        }
+
+        Match('(', file);
+//        Abort("Function Declarations not implemented. FIXME!", file);
     }
     else{
         UnMatch(name, file);
