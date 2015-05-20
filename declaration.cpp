@@ -46,18 +46,27 @@ void SymbolDeclaration(const struct Integral &type, CPU *cpu, Files file){
         
         struct Function<struct Variable> function_decl = {type, name, {}};
         
-        while(IsType(file)){
+        UnMatch(',', file);
+        
+        while(Peek(',', file)){
+            Match(',', file);
             struct Integral type;
             Type(type, file);
-
-            if(IsName(file)){
-                const std::string name = GetName(file);
-                
-            }
+            const std::string name = IsName(file)?GetName(file):"";
+            function_decl.argv.push_back({type, name});
         }
-
-        Match('(', file);
-//        Abort("Function Declarations not implemented. FIXME!", file);
+        
+        Match(')', file);
+        
+        if(Peek('{', file)){
+            
+            FunctionLabeller function_label(function_decl);
+            
+            
+            
+            Block(cpu, file);
+            UnMatch(';', file); // This is likely a sign that we put the semicolon in the wrong parsing function.
+        }
     }
     else{
         UnMatch(name, file);

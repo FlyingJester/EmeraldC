@@ -2,6 +2,7 @@
 #include "io.hpp"
 #include "function.hpp"
 #include <string>
+#include <stack>
 
 namespace Compiler {
 
@@ -15,9 +16,26 @@ struct Emitter;
 class CPU {
 protected:
     Emitter *emit;
-    
     CPU();
-    
+
+    struct Scope{
+        unsigned bytes_on_stack;
+    };
+
+    std::stack<struct Scope> scopes;
+
+    virtual void createScope_(unsigned bytes_in){
+        scopes.push({bytes_in});
+    }
+
+    virtual void addToScope_(unsigned bytes){
+        scopes.top().bytes_on_stack += bytes;
+    }
+
+    virtual void leaveScope()_{
+        scopes.pop();
+    }
+
 public:
     
     virtual int Optimize(unsigned level) = 0;
@@ -38,6 +56,11 @@ public:
 
     virtual void Exit() = 0;
 
+// Scoping
+    virtual void CreateScope(unsigned bytes_in) = 0;
+    virtual void AddToScope(unsigned bytes) = 0;
+    virtual void LeaveScope() = 0;
+    
 // Arithmetic operations
     virtual void Negate() = 0;
     virtual void Add() = 0;
