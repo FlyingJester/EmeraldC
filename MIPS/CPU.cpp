@@ -208,25 +208,6 @@ void CPU::WriteSymbols(Files file){
             }
         }
         fputc('\n', file.out);
-/*        
-        switch(emit->variables.back().type.size){
-            case 1:
-            fputs(".byte", file.out);
-            break;
-            case 2:
-            fputs(".half", file.out);
-            break;
-            case 4:
-            fputs(".word", file.out);
-            break;            
-            default:
-            for(int i = 1; i<emit->variables.back().type.size; i++){
-                fputs(".word ", file.out);
-                fputc('0', file.out);fputc(',', file.out);
-            }
-        }
-        fputs(" 0\n", file.out);
-*/
         emit->variables.pop_back();
     }
     fputc('\n', file.out);
