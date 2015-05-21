@@ -50,6 +50,15 @@ void CPU::Return(){
     EmitLine(emit, {"jr", {"$ra"}});
 }
 
+void CPU::AddToScope(unsigned bytes){
+    int b = bytes;
+    EmitLine(emit, {"addiu", {"$sp", "$sp", std::to_string(-b)}});
+}
+
+void CPU::LeaveScope(unsigned bytes){
+    EmitLine(emit, {"addiu", {"$sp", "$sp", std::to_string(bytes)}});
+}
+
 void CPU::Jump(const std::string &symbol){
     EmitLine(emit, {"j", {symbol}});
     assert(symbol!="4");

@@ -6,7 +6,7 @@ namespace Compiler {
 
 /*
 
-<program>         ::= [<block>]* <end_of_input> 
+<program>         ::= [<block>]* <end_of_input>
 <block>           ::= { <operation>* } | <operation>
 <operation>       ::= <logical_line> | <control>
 <logical_line>    ::= <logical_statement> ;

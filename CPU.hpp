@@ -1,8 +1,10 @@
 #pragma once
 #include "io.hpp"
 #include "function.hpp"
+#include "asm.hpp"
 #include <string>
 #include <stack>
+#include <vector>
 
 namespace Compiler {
 
@@ -17,24 +19,6 @@ class CPU {
 protected:
     Emitter *emit;
     CPU();
-
-    struct Scope{
-        unsigned bytes_on_stack;
-    };
-
-    std::stack<struct Scope> scopes;
-
-    virtual void createScope_(unsigned bytes_in){
-        scopes.push({bytes_in});
-    }
-
-    virtual void addToScope_(unsigned bytes){
-        scopes.top().bytes_on_stack += bytes;
-    }
-
-    virtual void leaveScope()_{
-        scopes.pop();
-    }
 
 public:
     
@@ -57,10 +41,11 @@ public:
     virtual void Exit() = 0;
 
 // Scoping
+// It is up to the caller to keep the stack balanced regarding scoping calls.
     virtual void CreateScope(unsigned bytes_in) = 0;
     virtual void AddToScope(unsigned bytes) = 0;
-    virtual void LeaveScope() = 0;
-    
+    virtual void LeaveScope(unsigned bytes) = 0;
+
 // Arithmetic operations
     virtual void Negate() = 0;
     virtual void Add() = 0;

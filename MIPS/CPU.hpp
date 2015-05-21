@@ -33,6 +33,14 @@ public:
 
     void Exit() override;
 
+// Scoping
+
+    void CreateScope(unsigned bytes_in) override {
+        AddToScope(bytes_in);
+    }
+    void AddToScope(unsigned bytes) override;
+    void LeaveScope(unsigned bytes) override;
+
 // Arithmetic operations
 
     void Negate() override;

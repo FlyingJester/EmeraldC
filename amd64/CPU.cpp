@@ -60,6 +60,19 @@ void CPU::Return(){
 
 }
 
+void CPU::AddToScope(unsigned bytes){
+
+    int b = bytes;
+    EmitLine(emit, {"add", {"rsp", std::to_string(-b)}});
+
+}
+
+void CPU::LeaveScope(unsigned bytes){
+
+    EmitLine(emit, {"add", {"rsp", std::to_string(bytes)}});
+
+}
+
 void CPU::Jump(const std::string &symbol){
 
     EmitLine(emit, {"jmp", {symbol}});
