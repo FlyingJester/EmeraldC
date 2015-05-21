@@ -2,6 +2,8 @@
 #include "boolean_expression.hpp"
 #include "integral_types.hpp"
 #include "declaration.hpp"
+#include "function.hpp"
+#include "scope.hpp"
 #include "io.hpp"
 #include "error.hpp"
 
@@ -68,9 +70,16 @@ template<>
 unsigned JumpLabeller<false>::i = 0;
 
 /*
-<program>         ::= [<block>]* <end_of_input>
-<block>           ::= { <operation>* } | <operation>
-<operation>       ::= <logical_line> | <control>
+<program>         ::= <global_declaration>* <end_of_input>
+<global_declaration> ::= <global_variable> ; | <global_function>
+<global_function> ::= <function_definition> | <forward_declaration>
+<global_variable> ::= extern <variable> ; | <typed_declaration> ;
+
+<forward_declaration> ::= <function_declaration> ;
+<function_declaration> ::= <type> <function_name> (  [<type> [<variable>] ] [, <type> [<variable>] ]* )
+<function_definition> ::= <function_declaration> { <operation> * }
+
+<operation>       ::= { <logical_line>* } | <logical_line> | <control>
 <logical_line>    ::= <logical_statement> ;
 <logical_statement> ::= <statement> [, <statement> ]
 <statement>       ::= <assignment> | <bool_statement> | <control_operator>
@@ -108,33 +117,123 @@ unsigned JumpLabeller<false>::i = 0;
 <return>::= return ( <logical_line> )
 */
 
-// <program>         ::= [<block>]* <end_of_input>
+
+// <block>           ::= { <logical_line>* } | <logical_line>
+void Block(CPU *cpu, Files file){
+    Scope scope(cpu, file);
+    if(Peek('{', file)){
+        Match('{', file);
+        while(!Peek('}', file))
+            LogicalLine(cpu, file);
+        Match('}', file);
+    }
+    else
+        LogicalLine(cpu, file);
+}
+/*
 void Program(CPU *cpu, Files file){
     while((!EndOfInput(file)) && (!Peek('@', file))){
         Block(cpu, file);
     }
 }
-
-// <block>           ::= { <operation>* } | <operation>
-void Block(CPU *cpu, Files file){
-    if(Peek('{', file)){
-        Match('{', file);
-        while(!Peek('}', file)){
-            Operation(cpu, file);
-        }
-        Match('}', file);
-    }
-    else{
-        Operation(cpu, file);
+*/
+// <program>         ::= <global_declaration>* <end_of_input>
+void Program(CPU *cpu, Files file){
+    while((!EndOfInput(file)) && (!Peek('@', file))){
+        GlobalDeclaration(cpu, file);
     }
 }
 
-// <operation>       ::= <logical_line> | <control>
+// <global_declaration> ::= <global_variable> ; | <function>
+void GlobalDeclaration(CPU *cpu, Files file){
+    struct Integral type;
+    if(Peek("extern", file)){
+        Match("extern", file);
+        Type(type, file);
+        type.is_extern = true;
+        GlobalVariable(type, cpu, file);
+    }
+    else{
+        Type(type, file);
+        GatherIndirection(type, file);
+        const std::string name = GetName(file);
+        if(Peek('(', file)){
+            GlobalFunction(type, name, cpu, file);
+        }
+        else{
+            UnMatch(name, file);
+            while(type.indirection)
+                UnMatch('*', file), type.indirection--;
+            GlobalVariable(type, cpu, file);
+        }
+    }
+}
+
+//<global_function> ::= <function_definition> | <forward_declaration>
+void GlobalFunction(const struct Integral &return_type, const std::string &name, CPU *cpu, Files file){
+
+    struct Function func = {return_type, name, {}};
+    Match('(', file);
+    if(IsType(file)){
+        struct Integral type;
+        Type(type, file);
+        GatherIndirection(type, file);
+        func.argv.push_back({type, (IsName(file)?GetName(file):"")});
+    }
+    while(Peek(',', file)){
+        Match(',', file);
+        struct Integral type;
+        Type(type, file);
+        GatherIndirection(type, file);
+        func.argv.push_back({type, (IsName(file)?GetName(file):"")});
+    }
+    Match(')', file);
+    if(Peek(';', file))
+        ForwardDeclaration(func, cpu, file);
+    else
+        FunctionDefinition(func, cpu, file);
+}
+
+// <global_variable> ::= extern <variable> ; | <typed_declaration> ;
+void GlobalVariable(const struct Integral &type, CPU *cpu, Files file){
+    if(Peek("extern", file)){
+        Abort("This is awkward. GlobalDeclaration is supposed to swallow the extern declaration.", file);
+    }
+    TypedDeclaration(type, cpu, file);
+    Match(';', file);
+}
+
+// <forward_declaration> ::= <function_declaration> ;
+void ForwardDeclaration(const struct Function &func, CPU *cpu, Files file){
+    Match(';', file);
+    // TODO: Log the function for later use?
+}
+
+// <function_declaration> ::= <type> <function_name> (  [<type> [<variable>] ] [, <type> [<variable>] ]* )
+void FunctionDeclaration(CPU *cpu, Files file);
+// <function_definition> ::= <function_declaration> { <operation> * }
+void FunctionDefinition(const struct Function &func, CPU *cpu, Files file){
+    
+    cpu->Label(func.name);
+    
+    Scope scope(cpu, file);
+    
+    
+    
+    Match('{', file);
+
+    while(!Peek('}', file))
+        Operation(cpu, file);
+
+    Match('}', file);
+}
+
+// <operation>       ::= <block> | <control>
 void Operation(CPU *cpu, Files file){
     if(IsControl(file))
         Control(cpu, file);
     else
-        LogicalLine(cpu, file);
+        Block(cpu, file);
 }
 
 // <logical_line>    ::= <logical_statement> ;
@@ -194,8 +293,8 @@ void Identifier(CPU *cpu, Files file){
             Abort("Implement Subscript. FIXME!", file);
             return;
         default:
-            cpu->EnsureVariable(name, file);
-            cpu->LoadVariable(name);
+            Scope::ensureVariable(name, cpu, file);
+            Scope::loadVariable(name, cpu, file);
     }
 }
 
@@ -248,7 +347,7 @@ void Assignment(CPU *cpu, Files file){
 
 std::string Variable(CPU *cpu, Files file){
     const std::string name = GetName(file);
-    cpu->EnsureVariable(name, file);
+    Scope::ensureVariable(name, cpu, file);
     return name;
 }
 

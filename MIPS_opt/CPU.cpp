@@ -7,7 +7,7 @@ namespace Compiler {
 namespace MIPS_opt{
 
 void CPU::PushValue(){
-    if(index<6){
+    if(index<7){
         // Store the value in $t#
         EmitLine(emit, {"move", {registerFromIndex(), "$t1"}});
     }
@@ -19,7 +19,7 @@ void CPU::PushValue(){
 
 void CPU::PopValue(){
     index--;
-    if(index<6){
+    if(index<7){
         EmitLine(emit, {"move", {"$t2", registerFromIndex()}});
     }
     else{

@@ -11,4 +11,9 @@ bool IsBinaryOperator(unsigned c);
 bool IsAddOp(unsigned c);
 bool IsMultOp(unsigned c);
 
+template<typename T = unsigned>
+inline bool IsName(T c){
+   return IsAlpha(c);
+}
+
 }

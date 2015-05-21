@@ -15,7 +15,7 @@ class CPU : public Compiler::MIPS::CPU {
 protected:
     unsigned index;
     inline std::string registerFromIndex(){
-        return std::string("$t")+std::to_string(index+3);
+        return std::string("$s")+std::to_string(index);
     }
 public:
     void PushValue() override;
