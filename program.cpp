@@ -217,6 +217,8 @@ void FunctionDefinition(const struct Function &func, CPU *cpu, Files file){
     cpu->Label(func.name);
     
     Scope scope(0, func.argv, cpu, file);
+    SetFunction(func, file);
+
     
     Match('{', file);
 
@@ -224,6 +226,9 @@ void FunctionDefinition(const struct Function &func, CPU *cpu, Files file){
         Operation(cpu, file);
 
     Match('}', file);
+
+    ClearFunction(file);
+    cpu->Return(func);
 }
 
 // <operation>       ::= <block> | <control>
@@ -495,7 +500,7 @@ void Break(CPU *cpu, Files file){
 void Return(CPU *cpu, Files file){
     Match("return", file);
     LogicalStatement(cpu, file);
-    cpu->Return();
+    cpu->Return(LastFunction(file));
 }
 
 

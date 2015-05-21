@@ -129,10 +129,65 @@ void Match(unsigned x, Files file){
     SkipWhiteSpace(file);
 }
 
+bool IsKeyword(Files file){
+    std::string s;
+
+    if(!IsAlpha(Peek()))
+        Expected("Name", file);
+
+    while(IsAlpha(Peek()) || IsDigit(Peek())){
+        s+=Peek();
+        PullChar(file);
+    }
+    return IsKeyword(s);
+}
+
+bool IsKeyword(const std::string &s){
+  if(
+  s=="auto" ||
+  s=="break" ||
+  s=="case" ||
+  s=="char" ||
+  s=="const" ||
+  s=="continue" ||
+  s=="default" ||
+  s=="do" ||
+  s=="double" ||
+  s=="else" ||
+  s=="enum" ||
+  s=="extern" ||
+  s=="float" ||
+  s=="for" ||
+  s=="goto" ||
+  s=="if" ||
+  s=="int" ||
+  s=="long" ||
+  s=="register" ||
+  s=="return" ||
+  s=="short" ||
+  s=="signed" ||
+  s=="sizeof" ||
+  s=="static" ||
+  s=="struct" ||
+  s=="switch" ||
+  s=="typedef" ||
+  s=="union" ||
+  s=="unsigned" ||
+  s=="void" ||
+  s=="volatile" ||
+  s=="while")
+    return true;
+  else
+    return false;
+}
+
 std::string GetName(Files file){
     std::string s;
 
     if(!IsName(file))
+        Expected("Name", file);
+
+    if(!IsAlpha(Peek()))
         Expected("Name", file);
 
     while(IsAlpha(Peek()) || IsDigit(Peek())){
@@ -142,6 +197,9 @@ std::string GetName(Files file){
     
     SkipWhiteSpace(file);
     
+    if(IsKeyword(s))
+        Unexpected("Keyword", file);
+
     return s;
 }
 

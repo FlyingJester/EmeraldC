@@ -54,8 +54,10 @@ void CPU::Call(const std::string &symbol){
 
 }
 
-void CPU::Return(){
+void CPU::Return(const struct Function &from){
 
+    LeaveScope((from.argv.size()>6)?6:from.argv.size());
+    
     EmitLine(emit, {"ret", {}});
 
 }
@@ -102,6 +104,13 @@ void CPU::LoadFromArgument(unsigned argi, unsigned argc){
 
     EmitLine(emit, {"mov", {"rax", LoadArgReg(argi)}});
 
+}
+
+void CPU::ArgumentsOntoStack(unsigned argc){
+    for(unsigned i = 0; i<argc && i<6; i++){
+        LoadFromArgument(i, argc);
+        PushValue();
+    }
 }
 
 void CPU::Jump(const std::string &symbol){

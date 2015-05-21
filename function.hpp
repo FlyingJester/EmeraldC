@@ -11,6 +11,10 @@ struct Function {
     std::vector<struct Variable> argv;
 };
 
+const struct Function &LastFunction(Files file);
+void SetFunction(const struct Function &func, Files file);
+void ClearFunction(Files file);
+
 class FunctionLabeller {
     const std::string name;
     static FunctionLabeller *last;
@@ -35,6 +39,7 @@ public:
 
     static const std::string &ScopePrefix();
     static bool InFunctionScope();
+
 };
 
 }
