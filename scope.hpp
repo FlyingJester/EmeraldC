@@ -40,6 +40,20 @@ class Scope{
 public:
     
     template<class T>
+    Scope(unsigned s, const T &variables, CPU *c, Files f)
+      : size(s)
+      , up(current)
+      , cpu(c)
+      , file(f){
+        total_size+=size;
+        current = this;
+        scope_variables.resize(variables.size());
+        std::copy(variables.cbegin(), variables.cend(), scope_variables.begin());
+        if(size)
+            cpu->CreateScope(size);
+    }
+
+    template<class T>
     Scope(const T &variables, CPU *c, Files f)
       : size(0)
       , up(current)
@@ -54,9 +68,8 @@ public:
             size+=i->type.size;
             printf("%i\n", size);
         }
-        
-        cpu->CreateScope(size);
-
+        if(size)
+            cpu->CreateScope(size);
     }
 
     Scope(CPU *c, Files f)

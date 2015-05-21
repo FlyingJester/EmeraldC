@@ -20,7 +20,7 @@ public:
     
 // Jumps
     void Call(const std::string &symbol) override;
-    void Return() override;
+    void Return(const struct Function &from) override;
 
     void Jump(const std::string &symbol) override;
     void JumpZero(const std::string &symbol) override;
@@ -39,6 +39,8 @@ public:
     void LoadFromStackAt(unsigned bytes) override;
 
     void LoadFromArgument(unsigned argi, unsigned argc) override;
+
+    void ArgumentsOntoStack(unsigned argc) override;
 
 // Arithmetic operations
 

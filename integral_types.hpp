@@ -28,12 +28,12 @@ const struct Integral &IntType(CPU *cpu);
 
 // C has a funny way about it.
 //
-// <uncanon_type> ::= <floating_type> | [<signed> | <unsigned>] integral_type
-// <floating_type> ::= float | [long] double
-// <integral_type> ::= char | <extended_type> | int
-// <extended_type> ::= <type_specifier> [int]
-// <type_specifier> ::= short | long | long long
-
+//   <type>     ::= <fpu_type> | <int_type>
+//   <fpu_type> ::= float | double
+//   <int_type> ::= <sizing> [int | char] | <signage> <sized_int> | char
+//   <sized_int>::= <sizing> int | <sizing> | char
+//   <signage>  ::= signed | unsigned
+//   <sizing>   ::= short | long | long long
 //
 // All type specifiers begin:
 //
@@ -75,11 +75,18 @@ enum TypeSpecifier {};
 bool IsType(Files file);
 
 // Generates a struct Integral based on input from file.
+//   <type>     ::= <fpu_type> | <int_type>
 void Type(struct Integral &into, Files file);
-void FloatingType(struct Integral &into, Files file);
-void IntegralType(struct Integral &into, Files file);
-void ExtendedType(struct Integral &into, Files file);
-void TypeSpecifier(struct Integral &into, Files file);
+//   <fpu_type> ::= float | double
+void FPUType(struct Integral &into, Files file);
+//   <int_type> ::= <sizing> [int | char] | <signage> [<sizing>] [int]
+void IntType(struct Integral &into, Files file);
+//   <sized_int>::= <sizing> [int] | char
+void SizedIntType(struct Integral &into, Files file);
+//   <signage>  ::= signed | unsigned
+void TypeSignage(struct Integral &into, Files file);
+//   <sizing>   ::= short | long | long long
+void TypeSizing(struct Integral &into, Files file);
 
 // Returns the canon name of the type specified by 'that'.
 //

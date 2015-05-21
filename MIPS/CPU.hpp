@@ -9,6 +9,9 @@ protected:
     void push(const std::string &reg) const;
     void pop(const std::string &reg) const;
     void booleanCast(const std::string &reg) const;
+
+    void loadFromArgument(unsigned argi, unsigned argc, const std::string &reg);
+
 public:
     
     void LoadVariable(const std::string &name) override;
@@ -25,7 +28,7 @@ public:
     
 // Jumps
     void Call(const std::string &symbol) override;
-    void Return() override;
+    void Return(const struct Function &from) override;
 
     void Jump(const std::string &symbol) override;
     void JumpZero(const std::string &symbol) override;
@@ -43,7 +46,11 @@ public:
 
     void LoadFromStackAt(unsigned bytes) override;
 
-    void LoadFromArgument(unsigned argi, unsigned argc) override;
+    void LoadFromArgument(unsigned argi, unsigned argc) override {
+        loadFromArgument(argi, argc, "$t1");
+    }
+
+    void ArgumentsOntoStack(unsigned argc) override;
 
 // Arithmetic operations
 

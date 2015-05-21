@@ -1,6 +1,7 @@
 #include "CPU.hpp"
 #include "asm.hpp"
 #include "error.hpp"
+#include <cassert>
 
 // Target includes
 #ifdef TARGET_MIPS
@@ -24,6 +25,7 @@ CPU::CPU(){
 
 void CPU::CreateVariable(const struct Integral& type, const std::string &name, Files file){
     CreateVariable({type, name}, file);
+    assert(name!="lol");
 }
 
 void CPU::CreateVariable(const struct Variable& var, Files file){

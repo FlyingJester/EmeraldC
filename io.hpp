@@ -32,6 +32,9 @@ bool IsNumber(Files file);
 
 bool EndOfInput(Files file);
 
+bool IsKeyword(Files file);
+bool IsKeyword(const std::string &s);
+
 unsigned GetLine(Files file);
 unsigned GetColumn(Files file);
 

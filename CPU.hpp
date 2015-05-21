@@ -32,7 +32,7 @@ public:
 
 // Jumps
     virtual void Call(const std::string &symbol) = 0;
-    virtual void Return() = 0;
+    virtual void Return(const struct Function &from) = 0;
 
     virtual void Jump(const std::string &symbol) = 0;
     virtual void JumpNotZero(const std::string &symbol) = 0;
@@ -49,6 +49,8 @@ public:
     virtual void LoadFromStackAt(unsigned bytes) = 0;
 
     virtual void LoadFromArgument(unsigned argi, unsigned argc) = 0;
+
+    virtual void ArgumentsOntoStack(unsigned argc) = 0;
 
 // Arithmetic operations
     virtual void Negate() = 0;

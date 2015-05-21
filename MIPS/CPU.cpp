@@ -50,7 +50,9 @@ void CPU::Call(const std::string &symbol){
     EmitLine(emit, {"mov", {"$t1", "$s8"}});
 }
 
-void CPU::Return(){
+void CPU::Return(const struct Function &from){
+    EmitLine(emit, {"move", {"$v0", "$t1"}});
+    EmitLine(emit, {"move", {"$v1", "$t2"}}); // This may be necessary later.
     EmitLine(emit, {"jr", {"$ra"}});
 }
 
@@ -67,12 +69,19 @@ void CPU::LoadFromStackAt(unsigned bytes){
     EmitLine(emit, {"lw", {"$t1", std::to_string(bytes)+"($sp)"}});
 }
 
-void CPU::LoadFromArgument(unsigned argi, unsigned argc){
+void CPU::loadFromArgument(unsigned argi, unsigned argc, const std::string &reg){
     if(argi<4){
-        EmitLine(emit, {"mov", {"$t1", std::string("$a") + std::to_string(argi)}});
+        EmitLine(emit, {"mov", {reg, std::string("$a") + std::to_string(argi)}});
     }
     else{
         LoadFromStackAt((argi-4)<<2);
+    }
+}
+
+void CPU::ArgumentsOntoStack(unsigned argc){
+    for(unsigned i = 0; i<argc; i++){
+        loadFromArgument(i, argc, "$t0");
+        push("$t0");
     }
 }
 
