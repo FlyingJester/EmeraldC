@@ -216,7 +216,7 @@ void FunctionDefinition(const struct Function &func, CPU *cpu, Files file){
     
     cpu->Label(func.name);
     
-    Scope scope(0, func.argv, cpu, file);
+    Scope scope(func.argv, cpu, file);
     SetFunction(func, file);
 
     
