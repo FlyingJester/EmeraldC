@@ -310,7 +310,7 @@ start:
 
     while(second!=operations.cend()){
         if(IsSPChange(second)){
-            if(GetSPChange(second)==-GetSPChange(first)){
+            if((GetSPChange(second)==-GetSPChange(first)) && (second!=first)){
                 operations.erase(first);
                 second = operations.erase(second);
                 removals++;

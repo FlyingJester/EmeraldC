@@ -1,6 +1,10 @@
 #pragma once
 #include "io.hpp"
+#include "function.hpp"
+#include "asm.hpp"
 #include <string>
+#include <stack>
+#include <vector>
 
 namespace Compiler {
 
@@ -14,9 +18,8 @@ struct Emitter;
 class CPU {
 protected:
     Emitter *emit;
-    
     CPU();
-    
+
 public:
     
     virtual int Optimize(unsigned level) = 0;
@@ -36,6 +39,14 @@ public:
     virtual void JumpZero(const std::string &symbol) = 0;
 
     virtual void Exit() = 0;
+
+// Scoping
+// It is up to the caller to keep the stack balanced regarding scoping calls.
+    virtual void CreateScope(unsigned bytes_in) = 0;
+    virtual void AddToScope(unsigned bytes) = 0;
+    virtual void LeaveScope(unsigned bytes) = 0;
+
+    virtual void LoadFromStackAt(unsigned bytes) = 0;
 
 // Arithmetic operations
     virtual void Negate() = 0;

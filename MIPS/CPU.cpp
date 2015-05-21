@@ -18,12 +18,12 @@ int CPU::Optimize(unsigned level){
 }
 
 void CPU::push(const std::string &reg_to) const {
-    EmitLine(emit, {"addiu", {"$sp", "$sp", "-4"}});
+    EmitLine(emit, {"addiu", {"$sp", "$sp", "-8"}});
     EmitLine(emit, {"sw", {reg_to, "0($sp)"}});
 }
 void CPU::pop(const std::string &reg_to) const {
     EmitLine(emit, {"lw", {reg_to, "0($sp)"}});
-    EmitLine(emit, {"addiu", {"$sp", "$sp", "4"}});
+    EmitLine(emit, {"addiu", {"$sp", "$sp", "8"}});
 }
 
 void CPU::booleanCast(const std::string &reg_to) const {
@@ -43,11 +43,28 @@ void CPU::LoadNumber(const std::string &number){
 }
 
 void CPU::Call(const std::string &symbol){
+    EmitLine(emit, {"mov", {"$s7", "$t2"}});
+    EmitLine(emit, {"mov", {"$s8", "$t1"}});
     EmitLine(emit, {"jal", {symbol}});
+    EmitLine(emit, {"mov", {"$t2", "$s7"}});
+    EmitLine(emit, {"mov", {"$t1", "$s8"}});
 }
 
 void CPU::Return(){
     EmitLine(emit, {"jr", {"$ra"}});
+}
+
+void CPU::AddToScope(unsigned bytes){
+    int b = bytes;
+    EmitLine(emit, {"addiu", {"$sp", "$sp", std::to_string(-b)}});
+}
+
+void CPU::LeaveScope(unsigned bytes){
+    EmitLine(emit, {"addiu", {"$sp", "$sp", std::to_string(bytes)}});
+}
+
+void CPU::LoadFromStackAt(unsigned bytes){
+    EmitLine(emit, {"lw", {"$t1", std::to_string(bytes)+"($sp)"}});
 }
 
 void CPU::Jump(const std::string &symbol){

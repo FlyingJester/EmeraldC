@@ -1,4 +1,5 @@
 #pragma once
+#include "function.hpp"
 #include "io.hpp"
 #include "CPU.hpp"
 
@@ -6,18 +7,43 @@ namespace Compiler {
 
 /*
 
-<program>         ::= [<block>]* <end_of_input> 
+This is wrong!
+<program>         ::= [<block>]* <end_of_input>
 <block>           ::= { <operation>* } | <operation>
-<operation>       ::= <logical_line> | <control>
+
+We will define global variables and scoped variables in different functions.
+Although the parsing is almost/completely identical, the actual behavious is
+vastly different.
+
+Perhaps a shared parsing routine, that returns an instance of struct Variable?
+
+This is right?
+<program>         ::= <global_declaration>* <end_of_input>
+<global_declaration> ::= <global_variable> ; | <global_function>
+<global_function> ::= <function_definition> | <forward_declaration>
+<global_variable> ::= extern <type> <variable_name> | <typed_declaration>
+
+<forward_declaration> ::= <function_declaration> ;
+<function_declaration> ::= <type> <function_name> (  [<type> [<variable>] ] [, <type> [<variable>] ]* )
+<function_definition> ::= <function_declaration> { <operation> * }
+
+// TEMP: from NG, only block and program are wrong. <operation> has ` { <logical_line>* } |` added.
+//   The above is purely added.
+
+<operation>       ::= <block> | <control>
+<block>           ::= { <logical_line>* } | <logical_line>
 <logical_line>    ::= <logical_statement> ;
 <logical_statement> ::= <statement> [, <statement> ] | <typed_declaration>
 <statement>       ::= <assignment> | <bool_statement> | <control_operator>
 <assignment>      ::= <variable> = <bool_statement>
 
+
+Questionable.
 <typed_declaration>::= <type> <indirection_declaration> [, <indirection_declaration>]
 <indirection_declaration> ::= <[*]+> <symbol_declaration>
 <symbol_declaration> ::= <declaration> [ ( [<type> <variable>] [, <type> <variable>]* ) ]
 <declaration>     ::= <variable> | <assignment>
+
 
 NOTE: Do we really need to handle commas here?
 <bool_statement>  ::= <bool_expression> [, <bool_expression>]*
@@ -55,6 +81,23 @@ NOTE: Do we really need to handle commas here?
 */
 
 void Program(CPU *cpu, Files file);
+
+// Retrieves the types and names to be passed to GlobalFunction and GlobalVariable.
+//   Note that indirection operators are left when calling GlobalVariable, but 
+//   swallowed when calling GlobalFunction. Hence, return_type for GlobalFunction 
+//   will include indirection if it exists, but type for GlobalVariable never will.
+//   This is also why we don't pass the name to GlobalVariable.
+void GlobalDeclaration(CPU *cpu, Files file);
+void GlobalFunction(const struct Integral &return_type, const std::string &name, CPU *cpu, Files file);
+void GlobalVariable(const struct Integral &type, CPU *cpu, Files file);
+
+// Constructs the function to be passed to ForwardDeclaration and FunctionDefinition
+void FunctionDeclaration(const struct Integral &return_type, const std::string &name, CPU *cpu, Files file);
+
+// These are templated, and so are internal.
+void ForwardDeclaration(const struct Function &func, CPU *cpu, Files file);
+void FunctionDefinition(const struct Function &func, CPU *cpu, Files file);
+
 void Block(CPU *cpu, Files file);
 
 void Operation(CPU *cpu, Files file);

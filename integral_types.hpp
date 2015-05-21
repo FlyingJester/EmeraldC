@@ -1,5 +1,6 @@
 #pragma once
 #include "io.hpp"
+#include <string>
 
 namespace Compiler {
 
@@ -10,6 +11,12 @@ struct Integral{
     bool fpu;
     bool is_const; // Unused
     bool is_static; // Unused
+    bool is_extern; // Unused
+};
+
+struct Variable {
+    struct Integral type;
+    std::string name;
 };
 
 class CPU;
