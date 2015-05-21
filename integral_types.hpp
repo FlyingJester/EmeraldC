@@ -11,6 +11,7 @@ struct Integral{
     bool fpu;
     bool is_const; // Unused
     bool is_static; // Unused
+    bool is_extern; // Unused
 };
 
 struct Variable {

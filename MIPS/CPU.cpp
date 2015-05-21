@@ -59,6 +59,10 @@ void CPU::LeaveScope(unsigned bytes){
     EmitLine(emit, {"addiu", {"$sp", "$sp", std::to_string(bytes)}});
 }
 
+void CPU::LoadFromStackAt(unsigned bytes){
+    EmitLine(emit, {"lw", {"$t1", std::to_string(bytes)+"($sp)"}});
+}
+
 void CPU::Jump(const std::string &symbol){
     EmitLine(emit, {"j", {symbol}});
     assert(symbol!="4");

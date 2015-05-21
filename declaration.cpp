@@ -13,6 +13,10 @@ void TypedDeclaration(CPU *cpu, Files file){
         Expected("Type Specifier", file);
     struct Integral type;
     Type(type, file);
+    TypedDeclaration(type, cpu, file);
+}
+
+void TypedDeclaration(const struct Integral &type, CPU *cpu, Files file){
     IndirectionDeclaration(type, cpu, file);
     while(Peek(',', file)){
         Match(',', file);
@@ -20,16 +24,25 @@ void TypedDeclaration(CPU *cpu, Files file){
     }
 }
 
-// <indirection_declaration> ::= <[*]+> <symbol_declaration>
-void IndirectionDeclaration(const struct Integral &type, CPU *cpu, Files file){
-    struct Integral our_type = type;
+void GatherIndirection(unsigned char &to, Files file){
+    to = 0;
     while(Peek('*', file)){
-        if(our_type.indirection==0xFF)
+        if(to==0xFF)
             Abort("Maximum level of indirection (255) exceeded", file);
 
         Match('*', file);
-        our_type.indirection++;
+        to++;
     }
+}
+
+void GatherIndirection(struct Integral &to, Files file){
+    GatherIndirection(to.indirection, file);
+}
+
+// <indirection_declaration> ::= <[*]+> <symbol_declaration>
+void IndirectionDeclaration(const struct Integral &type, CPU *cpu, Files file){
+    struct Integral our_type = type;
+    GatherIndirection(our_type.indirection, file);
     SymbolDeclaration(our_type, cpu, file);
 }
 
@@ -44,7 +57,7 @@ void SymbolDeclaration(const struct Integral &type, CPU *cpu, Files file){
         
         Match('(', file);
         
-        struct Function<struct Variable> function_decl = {type, name, {}};
+        struct Function function_decl = {type, name, {}};
         
         UnMatch(',', file);
         

@@ -46,6 +46,8 @@ public:
     virtual void AddToScope(unsigned bytes) = 0;
     virtual void LeaveScope(unsigned bytes) = 0;
 
+    virtual void LoadFromStackAt(unsigned bytes) = 0;
+
 // Arithmetic operations
     virtual void Negate() = 0;
     virtual void Add() = 0;

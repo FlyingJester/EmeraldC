@@ -41,6 +41,8 @@ public:
     void AddToScope(unsigned bytes) override;
     void LeaveScope(unsigned bytes) override;
 
+    void LoadFromStackAt(unsigned bytes) override;
+
 // Arithmetic operations
 
     void Negate() override;

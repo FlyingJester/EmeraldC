@@ -5,17 +5,17 @@ namespace Compiler {
 
 // TODO: Make this depend on the CPU address size.
 const struct Integral &PointerType(CPU *cpu){
-    const static struct Integral p = { 4, 1, true, false, false, false};
+    const static struct Integral p = { 4, 1, true, false, false, false, false};
     return p;
 }
 
 const struct Integral &CharType(CPU *cpu){
-    const static struct Integral c = { 1, 0, false, false, false, false};
+    const static struct Integral c = { 1, 0, false, false, false, false, false};
     return c;
 }
 
 const struct Integral &IntType(CPU *cpu){
-    const static struct Integral c = { 4, 0, true, false, false, false};
+    const static struct Integral c = { 4, 0, true, false, false, false, false};
     return c;
 }
 

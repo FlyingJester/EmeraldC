@@ -73,6 +73,13 @@ void CPU::LeaveScope(unsigned bytes){
 
 }
 
+void CPU::LoadFromStackAt(unsigned bytes){
+
+    EmitLine(emit, {"mov", {"rax", 
+        std::string("[qword rsp + ")+std::to_string(bytes)+"]"}});
+
+}
+
 void CPU::Jump(const std::string &symbol){
 
     EmitLine(emit, {"jmp", {symbol}});

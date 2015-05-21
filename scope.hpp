@@ -1,11 +1,13 @@
 #pragma once
 #include "integral_types.hpp"
+#include "CPU.hpp"
 #include <vector>
 
 namespace Compiler {
 
 class CPU;
 
+// TODO: Make the calling convention work! This is kind of nonsense right now.
 class Scope{
     // Keeps track of changes to the stack.
     //   It is of note that this only qualifies for addressable variables
@@ -26,15 +28,20 @@ class Scope{
     
     void expand(unsigned byte_size);
 
-    void loadVariable(const std::string &name, unsigned size_up);
+    void loadVariable_(const std::string &name, unsigned size_up);
+    void ensureVariable_(const std::string &name);
     
     std::vector<struct Variable> scope_variables;
+    
+    Scope() = delete;
+    Scope(Scope &) = delete;
+    Scope(const Scope &) = delete;
     
 public:
     
     template<class T>
-    Scope(unsigned byte_size, const T &variables, CPU *c, Files f)
-      : size(byte_size)
+    Scope(const T &variables, CPU *c, Files f)
+      : size(0)
       , up(current)
       , cpu(c)
       , file(f){
@@ -42,6 +49,22 @@ public:
         current = this;
         scope_variables.resize(variables.size());
         std::copy(variables.cbegin(), variables.cend(), scope_variables.begin());
+
+        for(typename T::const_iterator i = variables.cbegin(); i!=variables.cend(); i++){
+            size+=i->type.size;
+            printf("%i\n", size);
+        }
+        
+        cpu->CreateScope(size);
+
+    }
+
+    Scope(CPU *c, Files f)
+      : size(0)
+      , up(current)
+      , cpu(c)
+      , file(f){
+        current = this;
     }
     
     ~Scope();
@@ -56,8 +79,17 @@ public:
     //  and will then finally search the global scope. Will be
     //  called recursively.
 
-    inline void loadVariable(const std::string &name){
-        loadVariable(name, 0);
+    inline static void loadVariable(const std::string &name, CPU *cpu_, Files file_){
+        if(!current)
+            cpu_->LoadVariable(name);
+        else
+            current->loadVariable_(name, 0u);
+    }
+    static void ensureVariable(const std::string &name, CPU *cpu_, Files file_){
+        if(!current)
+            cpu_->EnsureVariable(name, file_);
+        else
+            current->ensureVariable_(name);
     }
 
 };
