@@ -122,5 +122,6 @@ void While(CPU *cpu, Files file);
 void DoWhile(CPU *cpu, Files file);
 void For(CPU *cpu, Files file);
 void Break(CPU *cpu, Files file);
+void Return(CPU *cpu, Files file);
 
 }

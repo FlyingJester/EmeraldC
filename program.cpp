@@ -216,9 +216,7 @@ void FunctionDefinition(const struct Function &func, CPU *cpu, Files file){
     
     cpu->Label(func.name);
     
-    Scope scope(cpu, file);
-    
-    
+    Scope scope(0, func.argv, cpu, file);
     
     Match('{', file);
 
@@ -258,7 +256,10 @@ void LogicalStatement(CPU *cpu, Files file){
 
 // <statement>       ::= <assignment> | <bool_statement> | <control_operator>
 void Statement(CPU *cpu, Files file){
-    if(IsName(file)){
+    if(IsControlOperator(file)){
+        ControlOperator(cpu, file);
+    }
+    else if(IsName(file)){
         const std::string name = GetName(file);
         const bool is_assign = Peek('=', file);
         UnMatch(name, file);
@@ -266,9 +267,9 @@ void Statement(CPU *cpu, Files file){
             Assignment(cpu, file);
             return;
         }
-    }
-    else if(IsControlOperator(file)){
-        ControlOperator(cpu, file);
+        else{
+            Boolean::Statement(cpu, file);
+        }
     }
     else{
         Boolean::Statement(cpu, file);
@@ -331,7 +332,7 @@ void ControlOperator(CPU *cpu, Files file){
         Break(cpu, file);
     }
     else if (Peek("return", file)){
-        cpu->Return();
+        Return(cpu, file);
     }
     else
         Expected("Control Operator", file);
@@ -354,8 +355,12 @@ std::string Variable(CPU *cpu, Files file){
 void If(CPU *cpu, Files file){
     Match("if", file);
     JumpLabeller<false> label;
-
+    
+    Match('(', file);
+    
     LogicalStatement(cpu, file);
+
+    Match(')', file);
 
     label.jumpZero(cpu);
 
@@ -486,5 +491,12 @@ void Break(CPU *cpu, Files file){
     Match("break", file);
     JumpLabeller<true>::breakTo(file).jump(cpu);
 }
+
+void Return(CPU *cpu, Files file){
+    Match("return", file);
+    LogicalStatement(cpu, file);
+    cpu->Return();
+}
+
 
 }
