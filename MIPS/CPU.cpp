@@ -190,23 +190,24 @@ void CPU::WriteSymbols(Files file){
     while(!emit->variables.empty()){
         fputs(emit->variables.back().name.c_str(), file.out);
         fputs(": ", file.out);
-        switch(emit->variables.back().type.size){
-            case 1:
-            fputs(".byte", file.out);
-            break;
-            case 2:
-            fputs(".half", file.out);
-            break;
-            case 4:
-            fputs(".word", file.out);
-            break;            
-            default:
-            for(int i = 1; i<emit->variables.back().type.size; i++){
-                fputs(".word ", file.out);
-                fputc('0', file.out);fputc(',', file.out);
+        if(emit->variables.back().type.indirection)
+            fputs(".word 0", file.out); // 32-bit only?
+        else if(emit->variables.back().type.size==1)
+            fputs(".byte 0", file.out);
+        else if(emit->variables.back().type.size==2)
+            fputs(".half 0", file.out);
+        else if(emit->variables.back().type.size==4)
+            fputs(".word 0", file.out);
+        else {
+            int i = 4;
+            fputs(".word 0", file.out);
+            while(i<emit->variables.back().type.size){
+                fputc(',', file.out);
+                fputc('0', file.out);
+                i+=4;
             }
         }
-        fputs(" 0\n", file.out);
+        fputc('\n', file.out);
         emit->variables.pop_back();
     }
     fputc('\n', file.out);
