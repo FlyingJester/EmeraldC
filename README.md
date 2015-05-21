@@ -15,6 +15,8 @@ http://compilers.iecc.com/crenshaw/ but there are marked differences.
 Obviously, Emerald C uses C syntax rather than a more Pascal-like one. Emerald
 C also outputs MIPS or amd64 instead of 68k ASM.
 
+The amd64 code generator is known to be wrong.
+
 Emerald C has an optimizer that targets simple peephole optimizations. It only
 works with the MIPS target currently.
 
