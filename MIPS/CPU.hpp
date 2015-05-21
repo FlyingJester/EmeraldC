@@ -43,6 +43,8 @@ public:
 
     void LoadFromStackAt(unsigned bytes) override;
 
+    void LoadFromArgument(unsigned argi, unsigned argc) override;
+
 // Arithmetic operations
 
     void Negate() override;

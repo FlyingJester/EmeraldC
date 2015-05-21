@@ -80,6 +80,30 @@ void CPU::LoadFromStackAt(unsigned bytes){
 
 }
 
+static inline std::string LoadArgReg(unsigned i){
+    switch(i){
+        case 0:
+            return "rdi";
+        case 1:
+            return "rsi";
+        case 2:
+            return "rdx";
+        case 3:
+            return "rcx";
+        case 4:
+            return "r8";
+        case 5:
+            return "r9";
+    }
+    return std::string("[qword rsp + ") + std::to_string((i-6)<<3) + "]";
+}
+
+void CPU::LoadFromArgument(unsigned argi, unsigned argc){
+
+    EmitLine(emit, {"mov", {"rax", LoadArgReg(argi)}});
+
+}
+
 void CPU::Jump(const std::string &symbol){
 
     EmitLine(emit, {"jmp", {symbol}});

@@ -67,6 +67,15 @@ void CPU::LoadFromStackAt(unsigned bytes){
     EmitLine(emit, {"lw", {"$t1", std::to_string(bytes)+"($sp)"}});
 }
 
+void CPU::LoadFromArgument(unsigned argi, unsigned argc){
+    if(argi<4){
+        EmitLine(emit, {"mov", {"$t1", std::string("$a") + std::to_string(argi)}});
+    }
+    else{
+        LoadFromStackAt((argi-4)<<2);
+    }
+}
+
 void CPU::Jump(const std::string &symbol){
     EmitLine(emit, {"j", {symbol}});
     assert(symbol!="4");

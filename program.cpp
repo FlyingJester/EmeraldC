@@ -216,8 +216,10 @@ void FunctionDefinition(const struct Function &func, CPU *cpu, Files file){
     
     cpu->Label(func.name);
     
-    Scope scope(func.argv, cpu, file);
-
+    Scope scope(cpu, file);
+    
+    
+    
     Match('{', file);
 
     while(!Peek('}', file))

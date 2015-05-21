@@ -48,6 +48,8 @@ public:
 
     virtual void LoadFromStackAt(unsigned bytes) = 0;
 
+    virtual void LoadFromArgument(unsigned argi, unsigned argc) = 0;
+
 // Arithmetic operations
     virtual void Negate() = 0;
     virtual void Add() = 0;
