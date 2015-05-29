@@ -500,7 +500,6 @@ void Break(CPU *cpu, Files file){
 void Return(CPU *cpu, Files file){
     Match("return", file);
     LogicalStatement(cpu, file);
-    cpu->LeaveScope(Scope::currentScopeSize());
     LastFunction(file).leaveInnerScope();
     cpu->Return(LastFunction(file));
 }

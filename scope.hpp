@@ -110,12 +110,11 @@ public:
     }
 
     unsigned scopeSizeSince() const{
-        const Scope *ex = this;
+        const Scope *ex = current;
         unsigned accum = 0;
-        printf("(%p)\t%p\t=>\t%p\n", current, ex, ex->up);
-        while(ex->up && ex->up!=current){
-            accum+=ex->size;
+        while(ex->up!=this){
             ex = ex->up;
+            accum+=ex->size;
         }
         return accum;
     }
