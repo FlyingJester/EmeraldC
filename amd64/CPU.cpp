@@ -1,6 +1,7 @@
 #include "CPU.hpp"
-#include "../asm.hpp"
 #include "../asm_inner.hpp"
+#include "../asm.hpp"
+#include "../function.hpp"
 #include "optimizer.hpp"
 #include <cassert>
 
@@ -54,7 +55,7 @@ void CPU::Call(const std::string &symbol){
 
 }
 
-void CPU::Return(const struct Function &from){
+void CPU::Return(const Function &from){
 
     LeaveScope((from.argv.size()>6)?6:from.argv.size());
     

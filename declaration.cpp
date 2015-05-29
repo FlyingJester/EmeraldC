@@ -57,7 +57,7 @@ void SymbolDeclaration(const struct Integral &type, CPU *cpu, Files file){
         
         Match('(', file);
         
-        struct Function function_decl = {type, name, {}};
+        Function function_decl(cpu, file, type, name);
         
         UnMatch(',', file);
         

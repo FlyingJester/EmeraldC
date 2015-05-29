@@ -172,7 +172,7 @@ void GlobalDeclaration(CPU *cpu, Files file){
 //<global_function> ::= <function_definition> | <forward_declaration>
 void GlobalFunction(const struct Integral &return_type, const std::string &name, CPU *cpu, Files file){
 
-    struct Function func = {return_type, name, {}};
+    Function func(cpu, file, return_type, name);
     Match('(', file);
     if(IsType(file)){
         struct Integral type;
@@ -204,7 +204,7 @@ void GlobalVariable(const struct Integral &type, CPU *cpu, Files file){
 }
 
 // <forward_declaration> ::= <function_declaration> ;
-void ForwardDeclaration(const struct Function &func, CPU *cpu, Files file){
+void ForwardDeclaration(const Function &func, CPU *cpu, Files file){
     Match(';', file);
     // TODO: Log the function for later use?
 }
@@ -212,22 +212,22 @@ void ForwardDeclaration(const struct Function &func, CPU *cpu, Files file){
 // <function_declaration> ::= <type> <function_name> (  [<type> [<variable>] ] [, <type> [<variable>] ]* )
 void FunctionDeclaration(CPU *cpu, Files file);
 // <function_definition> ::= <function_declaration> { <operation> * }
-void FunctionDefinition(const struct Function &func, CPU *cpu, Files file){
+void FunctionDefinition(const Function &func, CPU *cpu, Files file){
     
     cpu->Label(func.name);
+    { // Force the Scope scope().
+        SetFunction(func, file);
+        Scope scope(func.argv, cpu, file);
     
-    Scope scope(func.argv, cpu, file);
-    SetFunction(func, file);
+        Match('{', file);
 
-    
-    Match('{', file);
+        while(!Peek('}', file))
+            Operation(cpu, file);
 
-    while(!Peek('}', file))
-        Operation(cpu, file);
+        Match('}', file);
 
-    Match('}', file);
-
-    ClearFunction(file);
+        ClearFunction(file);
+    }
     cpu->Return(func);
 }
 
@@ -500,6 +500,8 @@ void Break(CPU *cpu, Files file){
 void Return(CPU *cpu, Files file){
     Match("return", file);
     LogicalStatement(cpu, file);
+    cpu->LeaveScope(Scope::currentScopeSize());
+    LastFunction(file).leaveInnerScope();
     cpu->Return(LastFunction(file));
 }
 

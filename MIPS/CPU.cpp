@@ -1,6 +1,7 @@
 #include "CPU.hpp"
 #include "../asm_inner.hpp"
 #include "../asm.hpp"
+#include "../function.hpp"
 #include "optimizer.hpp"
 #include <cassert>
 
@@ -50,7 +51,7 @@ void CPU::Call(const std::string &symbol){
     EmitLine(emit, {"mov", {"$t1", "$s8"}});
 }
 
-void CPU::Return(const struct Function &from){
+void CPU::Return(const Function &from){
     EmitLine(emit, {"move", {"$v0", "$t1"}});
     EmitLine(emit, {"move", {"$v1", "$t2"}}); // This may be necessary later.
     EmitLine(emit, {"jr", {"$ra"}});

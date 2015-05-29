@@ -7,10 +7,6 @@ namespace Compiler {
 
 /*
 
-This is wrong!
-<program>         ::= [<block>]* <end_of_input>
-<block>           ::= { <operation>* } | <operation>
-
 We will define global variables and scoped variables in different functions.
 Although the parsing is almost/completely identical, the actual behavious is
 vastly different.
@@ -26,9 +22,6 @@ This is right?
 <forward_declaration> ::= <function_declaration> ;
 <function_declaration> ::= <type> <function_name> (  [<type> [<variable>] ] [, <type> [<variable>] ]* )
 <function_definition> ::= <function_declaration> { <operation> * }
-
-// TEMP: from NG, only block and program are wrong. <operation> has ` { <logical_line>* } |` added.
-//   The above is purely added.
 
 <operation>       ::= <block> | <control>
 <block>           ::= { <logical_line>* } | <logical_line>
@@ -95,8 +88,8 @@ void GlobalVariable(const struct Integral &type, CPU *cpu, Files file);
 void FunctionDeclaration(const struct Integral &return_type, const std::string &name, CPU *cpu, Files file);
 
 // These are templated, and so are internal.
-void ForwardDeclaration(const struct Function &func, CPU *cpu, Files file);
-void FunctionDefinition(const struct Function &func, CPU *cpu, Files file);
+void ForwardDeclaration(const Function &func, CPU *cpu, Files file);
+void FunctionDefinition(const Function &func, CPU *cpu, Files file);
 
 void Block(CPU *cpu, Files file);
 
