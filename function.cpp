@@ -3,15 +3,34 @@
 
 namespace Compiler {
 
-static const struct Function *last_func = nullptr;
 
-const struct Function &LastFunction(Files file){
+static const Function *last_func = nullptr;
+
+Function::Function(CPU *c, Files f)
+  : cpu(c)
+  , file(f)
+  , scope(cpu, file){
+}
+
+Function::Function(CPU *c, Files f, const struct Integral &r, const std::string n)
+  : cpu(c)
+  , file(f)
+  , scope(cpu, file)
+  , return_type(r)
+  , name(n){
+}
+
+void Function::leaveInnerScope() const{
+    cpu->LeaveScope(scope.scopeSizeSince());
+}
+
+const Function &LastFunction(Files file){
     if(!last_func)
         Abort("Attempted retrieve the current function while not in a function", file);
     return *last_func;
 }
 
-void SetFunction(const struct Function &func, Files file){
+void SetFunction(const Function &func, Files file){
     if(last_func)
         Abort("Attempted to nest functions", file);
     last_func = &func;

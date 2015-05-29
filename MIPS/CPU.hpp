@@ -28,7 +28,7 @@ public:
     
 // Jumps
     void Call(const std::string &symbol) override;
-    void Return(const struct Function &from) override;
+    void Return(const Function &from) override;
 
     void Jump(const std::string &symbol) override;
     void JumpZero(const std::string &symbol) override;

@@ -1,6 +1,5 @@
 #pragma once
 #include "io.hpp"
-#include "function.hpp"
 #include "asm.hpp"
 #include <string>
 #include <stack>
@@ -8,6 +7,7 @@
 
 namespace Compiler {
 
+class Function;
 struct Variable;
 struct Integral;
 struct Emitter;
@@ -32,7 +32,7 @@ public:
 
 // Jumps
     virtual void Call(const std::string &symbol) = 0;
-    virtual void Return(const struct Function &from) = 0;
+    virtual void Return(const Function &from) = 0;
 
     virtual void Jump(const std::string &symbol) = 0;
     virtual void JumpNotZero(const std::string &symbol) = 0;

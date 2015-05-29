@@ -38,7 +38,7 @@ class Scope{
     Scope(const Scope &) = delete;
     
 public:
-    
+
     template<class T>
     Scope(unsigned s, const T &variables, CPU *c, Files f)
       : size(s)
@@ -105,6 +105,19 @@ public:
             current->ensureVariable_(name);
     }
 
+    static unsigned currentScopeSize() {
+        return current->size;
+    }
+
+    unsigned scopeSizeSince() const{
+        const Scope *ex = current;
+        unsigned accum = 0;
+        while(ex->up!=this){
+            ex = ex->up;
+            accum+=ex->size;
+        }
+        return accum;
+    }
 };
 
 }
